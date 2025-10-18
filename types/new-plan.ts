@@ -1,8 +1,10 @@
 export interface NewPlan {
   activity: string;
   description?: string;
-  when: 'Ahora' | 'Próx 3 h' | 'Esta noche';
-  duration: number; // in minutes
+  when: 'Ahora' | 'Hoy';
+  duration?: number; // in minutes, now optional
+  availabilityStart?: string;
+  availabilityEnd?: string;
   location?: {
     name: string;
     latitude: number;

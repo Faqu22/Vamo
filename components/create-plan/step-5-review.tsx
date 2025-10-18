@@ -35,6 +35,18 @@ function ReviewRow({ label, value, onEdit }: ReviewRowProps) {
 }
 
 export function Step5Review({ planData, setCurrentStep }: Props) {
+  const getTimeValue = () => {
+    if (planData.when === 'Ahora') {
+      return `Ahora • ${planData.duration || '...'} min`;
+    }
+    if (planData.when === 'Hoy') {
+      const start = planData.availabilityStart || '...';
+      const end = planData.availabilityEnd || '...';
+      return `Hoy, de ${start} a ${end}`;
+    }
+    return 'Sin especificar';
+  };
+
   return (
     <ScrollView style={styles.container}>
       <ThemedText type="title">Revisá y publicá</ThemedText>
@@ -45,7 +57,7 @@ export function Step5Review({ planData, setCurrentStep }: Props) {
       />
       <ReviewRow
         label="Cuándo y duración"
-        value={`${planData.when} • ${planData.duration} min`}
+        value={getTimeValue()}
         onEdit={() => setCurrentStep(2)}
       />
       <ReviewRow
