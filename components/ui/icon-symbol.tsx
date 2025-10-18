@@ -15,6 +15,7 @@ const MAPPING = {
   xmark: 'close',
   'chevron.down': 'keyboard-arrow-down',
   'chevron.up': 'keyboard-arrow-up',
+  'chevron.left': 'keyboard-arrow-left',
   'link.circle.fill': 'link',
   'questionmark.circle.fill': 'help',
   'person.2.fill': 'people',
@@ -22,6 +23,7 @@ const MAPPING = {
   magnifyingglass: 'search',
   'location.fill': 'my-location',
   'square.and.pencil': 'edit',
+  plus: 'add',
   // Add more mappings as needed
 };
 

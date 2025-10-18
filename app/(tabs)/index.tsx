@@ -19,6 +19,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { CreatePlanModal } from '@/components/modals/create-plan-modal';
 import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -52,6 +53,7 @@ export default function HomeScreen() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+  const [isCreatePlanModalVisible, setCreatePlanModalVisible] = useState(false);
 
   const mapRef = useRef<MapView>(null);
   const animatedHeight = useSharedValue(0);
@@ -176,6 +178,13 @@ export default function HomeScreen() {
         iconName="location.fill"
         onPress={centerOnUserLocation}
         bottomPosition={COLLAPSED_HEIGHT + 20}
+        side="left"
+      />
+      <FloatingActionButton
+        iconName="plus"
+        onPress={() => setCreatePlanModalVisible(true)}
+        bottomPosition={COLLAPSED_HEIGHT + 20}
+        side="right"
       />
 
       <View style={[styles.searchSection, { backgroundColor }]}>
@@ -245,6 +254,10 @@ export default function HomeScreen() {
 
       {selectedPlan && (
         <PlanDetailModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
+      )}
+
+      {isCreatePlanModalVisible && (
+        <CreatePlanModal onClose={() => setCreatePlanModalVisible(false)} />
       )}
     </ThemedView>
   );

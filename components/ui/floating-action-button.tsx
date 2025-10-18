@@ -8,18 +8,26 @@ interface FloatingActionButtonProps {
   onPress: () => void;
   iconName: IconSymbolName;
   bottomPosition: number;
+  side?: 'left' | 'right';
 }
 
 export function FloatingActionButton({
   onPress,
   iconName,
   bottomPosition,
+  side = 'right',
 }: FloatingActionButtonProps) {
   const backgroundColor = useThemeColor({}, 'card');
   const iconColor = useThemeColor({}, 'primary');
 
   return (
-    <ThemedView style={[styles.container, { bottom: bottomPosition, backgroundColor }]}>
+    <ThemedView
+      style={[
+        styles.container,
+        { bottom: bottomPosition, backgroundColor },
+        side === 'right' ? { right: 20 } : { left: 20 },
+      ]}
+    >
       <Pressable onPress={onPress} style={styles.pressable}>
         <IconSymbol name={iconName} size={24} color={iconColor} />
       </Pressable>
@@ -30,7 +38,6 @@ export function FloatingActionButton({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
