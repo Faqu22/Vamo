@@ -102,18 +102,48 @@ export function Step3Location({ planData, setPlanData }: Props) {
     });
   };
 
-  const handleMapPress = (event: MapPressEvent) => {
+  const handleMapPress = async (event: MapPressEvent) => {
     const { coordinate } = event.nativeEvent;
+    setSearchResults([]);
+    Keyboard.dismiss();
+
+    let locationName = 'Ubicación en el mapa';
+    let locationAddress = `${coordinate.latitude.toFixed(4)}, ${coordinate.longitude.toFixed(4)}`;
+
+    try {
+      const results = await Location.reverseGeocodeAsync(coordinate);
+      if (results.length > 0) {
+        const addr = results[0];
+        locationName = addr.name || `${addr.street || ''} ${addr.streetNumber || ''}`.trim();
+        locationAddress = `${addr.city || ''}, ${addr.region || ''}`.trim();
+      }
+    } catch (error) {
+      console.error('Reverse geocoding failed', error);
+    }
+
     setPlanData((prev) => ({
       ...prev,
       location: {
-        name: 'Ubicación seleccionada',
-        address: `${coordinate.latitude.toFixed(4)}, ${coordinate.longitude.toFixed(4)}`,
+        name: locationName,
+        address: locationAddress,
         ...coordinate,
       },
     }));
-    setSearchQuery('Ubicación seleccionada');
+    setSearchQuery(locationName);
+  };
+
+  const handleClearLocation = () => {
+    setPlanData((prev) => ({ ...prev, location: undefined, locationDescription: '' }));
+    setSearchQuery('');
     setSearchResults([]);
+    if (userLocation) {
+      mapRef.current?.animateToRegion({
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+    }
   };
 
   const getInitialRegion = () => {
@@ -158,6 +188,11 @@ export function Step3Location({ planData, setPlanData }: Props) {
               value={searchQuery}
               onChangeText={handleSearch}
             />
+            {planData.location && (
+              <Pressable onPress={handleClearLocation} style={styles.clearButton}>
+                <IconSymbol name="xmark.circle.fill" color={iconColor} size={20} />
+              </Pressable>
+            )}
           </View>
           {searchResults.length > 0 && (
             <FlatList
@@ -239,6 +274,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 16,
+  },
+  clearButton: {
+    padding: 5,
+    marginLeft: 5,
   },
   resultsList: {
     position: 'absolute',
