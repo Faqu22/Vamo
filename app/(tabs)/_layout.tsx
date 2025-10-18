@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable } from 'react-native';
 
@@ -9,6 +9,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme() ?? 'light';
+  const router = useRouter();
 
   return (
     <Tabs
@@ -37,7 +38,10 @@ export default function TabLayout() {
           title: 'Perfil',
           tabBarIcon: ({ color, focused }) => <IconSymbol name="person.fill" color={color} />,
           headerRight: () => (
-            <Pressable style={{ marginRight: 15 }}>
+            <Pressable
+              style={{ marginRight: 15 }}
+              onPress={() => router.push('/edit-profile')}
+            >
               <IconSymbol name="square.and.pencil" color={Colors[colorScheme].primary} />
             </Pressable>
           ),

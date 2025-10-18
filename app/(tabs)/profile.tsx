@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 
@@ -7,21 +8,26 @@ import { ThemedView } from '@/components/themed-view';
 import { FriendItem } from '@/components/ui/friend-item';
 import { FrequentPlaceItem } from '@/components/ui/frequent-place-item';
 import { InterestPill } from '@/components/ui/interest-pill';
+import { userProfileData } from '../../data/user';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { MOCK_FRIENDS } from '@/mocksdata/friends';
 import { MOCK_FREQUENT_PLACES } from '@/mocksdata/places';
-import { MOCK_USER } from '@/mocksdata/user';
 
 type ActiveTab = 'places' | 'friends';
 
 export default function ProfileScreen() {
-  const user = MOCK_USER;
+  const [user, setUser] = useState(userProfileData);
   const [activeTab, setActiveTab] = useState<ActiveTab>('places');
   const backgroundColor = useThemeColor({}, 'background');
   const cardColor = useThemeColor({}, 'card');
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryTextColor = useThemeColor({}, 'icon');
-  const borderColor = useThemeColor({}, 'border');
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setUser({ ...userProfileData });
+    }, [])
+  );
 
   const renderContent = () => {
     if (activeTab === 'places') {
@@ -66,7 +72,7 @@ export default function ProfileScreen() {
             Intereses
           </ThemedText>
           <View style={styles.interestsContainer}>
-            {user.interests.map((interest) => (
+            {user.interests.map((interest: string) => (
               <InterestPill key={interest} label={interest} />
             ))}
           </View>
