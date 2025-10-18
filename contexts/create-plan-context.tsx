@@ -13,8 +13,9 @@ const initialState: Partial<NewPlan> = {
   when: 'Ahora',
   duration: 30,
   capacity: 3,
-  womenOnly: false,
-  ageRange: '18-24',
+  genderPreference: 'any',
+  ageRange: { min: 18, max: 99 },
+  isFlexible: false,
   visibility: 'Público',
 };
 

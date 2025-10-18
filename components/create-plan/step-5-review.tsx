@@ -63,6 +63,22 @@ export function Step5Review({ planData, setCurrentStep }: Props) {
     return value;
   };
 
+  const getPreferencesValue = () => {
+    const genderMap = {
+      any: 'Sin preferencia',
+      male: 'Masculino',
+      female: 'Femenino',
+    };
+    const parts = [
+      `Cupo: ${planData.capacity || '...'}`,
+      `Edad: ${planData.ageRange?.min || '...'}-${planData.ageRange?.max || '...'}`,
+      `Género: ${genderMap[planData.genderPreference || 'any']}`,
+      planData.isFlexible ? 'Plan flexible' : '',
+      planData.visibility,
+    ];
+    return parts.filter(Boolean).join('\n');
+  };
+
   return (
     <ScrollView style={styles.container}>
       <ThemedText type="title">Revisá y publicá</ThemedText>
@@ -83,7 +99,7 @@ export function Step5Review({ planData, setCurrentStep }: Props) {
       />
       <ReviewRow
         label="Preferencias"
-        value={`Cupo: ${planData.capacity}, ${planData.visibility}`}
+        value={getPreferencesValue()}
         onEdit={() => setCurrentStep(4)}
       />
     </ScrollView>

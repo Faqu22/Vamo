@@ -12,8 +12,12 @@ export interface NewPlan {
     longitude: number;
   };
   locationDescription?: string;
-  capacity: '1:1' | number;
-  womenOnly: boolean;
-  ageRange: string; // e.g., '18-24'
+  capacity: number;
+  genderPreference: 'any' | 'male' | 'female';
+  ageRange: {
+    min: number;
+    max: number;
+  };
+  isFlexible: boolean;
   visibility: 'Público' | 'Solo por invitación';
 }

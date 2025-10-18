@@ -1,5 +1,6 @@
-import { ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { OptionButton } from '@/components/ui/option-button';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -10,48 +11,96 @@ interface Props {
   setPlanData: React.Dispatch<React.SetStateAction<Partial<NewPlan>>>;
 }
 
-const CAPACITY_OPTIONS: NewPlan['capacity'][] = ['1:1', 3, 4, 6];
+const GENDER_OPTIONS: { label: string; value: NewPlan['genderPreference'] }[] = [
+  { label: 'Sin preferencia', value: 'any' },
+  { label: 'Masculino', value: 'male' },
+  { label: 'Femenino', value: 'female' },
+];
 const VISIBILITY_OPTIONS: NewPlan['visibility'][] = ['Público', 'Solo por invitación'];
 
 export function Step4Preferences({ planData, setPlanData }: Props) {
   const primaryColor = useThemeColor({}, 'primary');
   const cardColor = useThemeColor({}, 'card');
   const borderColor = useThemeColor({}, 'border');
+  const textColor = useThemeColor({}, 'text');
+  const iconColor = useThemeColor({}, 'icon');
+
+  const handleAgeChange = (field: 'min' | 'max', value: string) => {
+    const numValue = Number(value);
+    if (!isNaN(numValue)) {
+      setPlanData((prev) => ({
+        ...prev,
+        ageRange: { ...prev.ageRange!, [field]: numValue },
+      }));
+    }
+  };
+
+  const showFlexibilityInfo = () => {
+    Alert.alert(
+      '¿Qué es un plan flexible?',
+      'Un plan flexible indica que la actividad principal es una sugerencia, pero el grupo está abierto a otras ideas que puedan surgir en el momento.'
+    );
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      <ThemedText type="title">Cupo y preferencias</ThemedText>
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+      <ThemedText type="title">Preferencias del plan</ThemedText>
 
-      <ThemedText style={styles.label}>Cupo</ThemedText>
+      <ThemedText style={styles.label}>Cupo (incluyéndote)</ThemedText>
+      <TextInput
+        style={[styles.input, { backgroundColor: cardColor, borderColor, color: textColor }]}
+        keyboardType="numeric"
+        value={String(planData.capacity)}
+        onChangeText={(text) =>
+          setPlanData((prev) => ({ ...prev, capacity: Number(text) || 0 }))
+        }
+      />
+
+      <ThemedText style={styles.label}>Preferencia de género</ThemedText>
       <View style={styles.optionsContainer}>
-        {CAPACITY_OPTIONS.map((item) => (
+        {GENDER_OPTIONS.map((item) => (
           <OptionButton
-            key={item}
-            label={String(item)}
-            isActive={planData.capacity === item}
-            onPress={() => setPlanData((prev) => ({ ...prev, capacity: item }))}
+            key={item.value}
+            label={item.label}
+            isActive={planData.genderPreference === item.value}
+            onPress={() => setPlanData((prev) => ({ ...prev, genderPreference: item.value }))}
+            fullWidth
           />
         ))}
       </View>
 
-      <View style={[styles.row, { backgroundColor: cardColor, borderColor }]}>
-        <ThemedText>Solo mujeres</ThemedText>
-        <Switch
-          value={planData.womenOnly}
-          onValueChange={(value) => setPlanData((prev) => ({ ...prev, womenOnly: value }))}
-          trackColor={{ false: '#767577', true: primaryColor }}
-          thumbColor={'#f4f3f4'}
+      <ThemedText style={styles.label}>Rango de edad</ThemedText>
+      <View style={styles.ageRangeContainer}>
+        <TextInput
+          style={[styles.input, styles.ageInput, { backgroundColor: cardColor, borderColor, color: textColor }]}
+          keyboardType="numeric"
+          placeholder="Mín."
+          value={String(planData.ageRange?.min)}
+          onChangeText={(text) => handleAgeChange('min', text)}
+        />
+        <ThemedText style={styles.ageSeparator}>-</ThemedText>
+        <TextInput
+          style={[styles.input, styles.ageInput, { backgroundColor: cardColor, borderColor, color: textColor }]}
+          keyboardType="numeric"
+          placeholder="Máx."
+          value={String(planData.ageRange?.max)}
+          onChangeText={(text) => handleAgeChange('max', text)}
         />
       </View>
 
-      <ThemedText style={styles.label}>Rango de edad</ThemedText>
-      <View
-        style={[
-          styles.row,
-          { backgroundColor: cardColor, borderColor, justifyContent: 'center', paddingVertical: 16 },
-        ]}
-      >
-        <ThemedText>{planData.ageRange}</ThemedText>
+      <View style={[styles.row, { backgroundColor: cardColor, borderColor, marginTop: 20 }]}>
+        <View style={styles.flexibleLabelContainer}>
+          <ThemedText>Plan flexible</ThemedText>
+          <Pressable onPress={showFlexibilityInfo} style={styles.infoIcon}>
+            <IconSymbol name="questionmark.circle.fill" size={20} color={iconColor} />
+          </Pressable>
+        </View>
+        <Switch
+          value={planData.isFlexible}
+          onValueChange={(value) => setPlanData((prev) => ({ ...prev, isFlexible: value }))}
+          trackColor={{ false: '#767577', true: primaryColor }}
+          thumbColor={'#f4f3f4'}
+        />
       </View>
 
       <ThemedText style={styles.label}>Visibilidad</ThemedText>
@@ -81,10 +130,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
+  input: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 15,
+    fontSize: 16,
+  },
   optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     margin: -4,
+    gap: 8,
   },
   row: {
     flexDirection: 'row',
@@ -94,6 +150,25 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 12,
     borderWidth: 1,
-    marginTop: 10,
+  },
+  ageRangeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  ageInput: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  ageSeparator: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  flexibleLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoIcon: {
+    marginLeft: 8,
   },
 });
