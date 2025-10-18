@@ -7,9 +7,11 @@ export interface NewPlan {
   availabilityEnd?: string;
   location?: {
     name: string;
+    address?: string;
     latitude: number;
     longitude: number;
   };
+  locationDescription?: string;
   capacity: '1:1' | number;
   womenOnly: boolean;
   ageRange: string; // e.g., '18-24'

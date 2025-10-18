@@ -25,9 +25,11 @@ function ReviewRow({ label, value, onEdit }: ReviewRowProps) {
     <View style={[styles.reviewRow, { backgroundColor: cardColor, borderColor }]}>
       <View style={styles.reviewInfo}>
         <ThemedText style={[styles.reviewLabel, { color: secondaryTextColor }]}>{label}</ThemedText>
-        <ThemedText type="defaultSemiBold">{value}</ThemedText>
+        <ThemedText type="defaultSemiBold" style={styles.reviewValue}>
+          {value}
+        </ThemedText>
       </View>
-      <Pressable onPress={onEdit}>
+      <Pressable onPress={onEdit} style={styles.editButton}>
         <ThemedText style={{ color: primaryColor, fontWeight: '600' }}>Editar</ThemedText>
       </Pressable>
     </View>
@@ -47,6 +49,20 @@ export function Step5Review({ planData, setCurrentStep }: Props) {
     return 'Sin especificar';
   };
 
+  const getLocationValue = () => {
+    if (!planData.location?.name) {
+      return 'Sin especificar';
+    }
+    let value = `${planData.location.name}`;
+    if (planData.location.address) {
+      value += `\n${planData.location.address}`;
+    }
+    if (planData.locationDescription) {
+      value += `\n\n"${planData.locationDescription}"`;
+    }
+    return value;
+  };
+
   return (
     <ScrollView style={styles.container}>
       <ThemedText type="title">Revisá y publicá</ThemedText>
@@ -62,7 +78,7 @@ export function Step5Review({ planData, setCurrentStep }: Props) {
       />
       <ReviewRow
         label="Lugar"
-        value={planData.location?.name || 'Sin especificar'}
+        value={getLocationValue()}
         onEdit={() => setCurrentStep(3)}
       />
       <ReviewRow
@@ -82,7 +98,7 @@ const styles = StyleSheet.create({
   reviewRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
@@ -91,9 +107,16 @@ const styles = StyleSheet.create({
   },
   reviewInfo: {
     flex: 1,
+    marginRight: 10,
   },
   reviewLabel: {
     marginBottom: 4,
     fontSize: 14,
+  },
+  reviewValue: {
+    lineHeight: 22,
+  },
+  editButton: {
+    paddingTop: 2,
   },
 });
