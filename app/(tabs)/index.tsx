@@ -2,7 +2,10 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { StyleSheet, TextInput, Pressable } from 'react-native';
+import { MOCK_PLANS } from '@/mocksdata/plans';
+import { Link } from 'expo-router';
+import { Pressable, StyleSheet, TextInput } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 
 export default function HomeScreen() {
   const cardColor = useThemeColor({}, 'card');
@@ -12,32 +15,56 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        ¿Qué pinta hoy?
-      </ThemedText>
+      <ThemedView style={styles.upperContainer}>
+        <ThemedText type="title" style={styles.title}>
+          ¿Qué pinta hoy?
+        </ThemedText>
 
-      <TextInput
-        placeholder="Fútbol, tomar algo, ir al cine..."
-        placeholderTextColor="#999"
-        style={[styles.input, { backgroundColor: cardColor, color: textColor, borderColor }]}
-      />
+        <TextInput
+          placeholder="Fútbol, tomar algo, ir al cine..."
+          placeholderTextColor="#999"
+          style={[styles.input, { backgroundColor: cardColor, color: textColor, borderColor }]}
+        />
 
-      <Pressable style={styles.button}>
-        <ThemedText style={styles.buttonText}>Estoy para cualquiera</ThemedText>
-      </Pressable>
+        <Pressable style={[styles.button, { backgroundColor: cardColor }]}>
+          <ThemedText style={[styles.buttonText, { color: textColor }]}>
+            Estoy para cualquiera
+          </ThemedText>
+        </Pressable>
 
-      <ThemedView style={styles.separator}>
-        <ThemedView style={[styles.line, { backgroundColor: borderColor }]} />
-        <ThemedText style={styles.separatorText}>o</ThemedText>
-        <ThemedView style={[styles.line, { backgroundColor: borderColor }]} />
+        <ThemedView style={styles.separator}>
+          <ThemedView style={[styles.line, { backgroundColor: borderColor }]} />
+          <ThemedText style={styles.separatorText}>o</ThemedText>
+          <ThemedView style={[styles.line, { backgroundColor: borderColor }]} />
+        </ThemedView>
+
+        <Link href="/map" asChild>
+          <Pressable style={[styles.button, styles.mapButton, { backgroundColor: primaryColor }]}>
+            <IconSymbol name="map.fill" color="#fff" size={20} />
+            <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
+              Abrir mapa de planes
+            </ThemedText>
+          </Pressable>
+        </Link>
       </ThemedView>
 
-      <Pressable style={[styles.button, styles.mapButton, { backgroundColor: primaryColor }]}>
-        <IconSymbol name="map.fill" color="#fff" size={20} />
-        <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
-          Abrir mapa de planes
-        </ThemedText>
-      </Pressable>
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: -34.58,
+            longitude: -58.42,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+          scrollEnabled={false}
+          zoomEnabled={false}
+        >
+          {MOCK_PLANS.map((plan) => (
+            <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
+          ))}
+        </MapView>
+      </View>
     </ThemedView>
   );
 }
@@ -45,9 +72,14 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  upperContainer: {
+    flex: 2,
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+  },
+  mapContainer: {
+    flex: 1,
   },
   title: {
     marginBottom: 30,
@@ -68,7 +100,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#e9e9e9',
   },
   buttonText: {
     fontSize: 16,
@@ -91,5 +122,8 @@ const styles = StyleSheet.create({
   separatorText: {
     marginHorizontal: 10,
     color: '#999',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
 });
