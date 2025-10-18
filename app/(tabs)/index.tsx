@@ -6,7 +6,14 @@ import { MOCK_ACTIVE_USERS } from '@/mocksdata/active-users';
 import { MOCK_PLANS } from '@/mocksdata/plans';
 import { Link } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import {
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 type GenderFilter = 'male' | 'female' | 'other' | null;
@@ -19,6 +26,7 @@ export default function HomeScreen() {
   const iconColor = useThemeColor({}, 'icon');
 
   const [genderFilter, setGenderFilter] = useState<GenderFilter>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const filteredUsers = useMemo(() => {
     if (!genderFilter) {
@@ -42,81 +50,93 @@ export default function HomeScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.upperContainer}>
-        <ThemedText type="title" style={styles.title}>
-          ¿Qué pinta hoy?
-        </ThemedText>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.upperContainer}>
+          <ThemedText type="title" style={styles.title}>
+            ¿Qué pinta hoy?
+          </ThemedText>
 
-        <TextInput
-          placeholder="Fútbol, tomar algo, ir al cine..."
-          placeholderTextColor="#999"
-          style={[styles.input, { backgroundColor: cardColor, color: textColor, borderColor }]}
-        />
+          <TextInput
+            placeholder="Fútbol, tomar algo, ir al cine..."
+            placeholderTextColor="#999"
+            style={[styles.input, { backgroundColor: cardColor, color: textColor, borderColor }]}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+          />
 
-        <View style={styles.filtersContainer}>
-          <Pressable style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}>
-            <ThemedText style={styles.filterButtonText}>Edad</ThemedText>
+          {isInputFocused && (
+            <>
+              <View style={styles.filtersContainer}>
+                <Pressable
+                  style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}
+                >
+                  <ThemedText style={styles.filterButtonText}>Edad</ThemedText>
+                </Pressable>
+                <Pressable
+                  onPress={handleGenderFilterToggle}
+                  style={[
+                    styles.filterButton,
+                    { backgroundColor: cardColor, borderColor },
+                    genderFilter ? { backgroundColor: primaryColor, borderColor: primaryColor } : {},
+                  ]}
+                >
+                  <ThemedText
+                    style={[styles.filterButtonText, genderFilter ? { color: '#fff' } : {}]}
+                  >
+                    {getGenderFilterText()}
+                  </ThemedText>
+                </Pressable>
+                <Pressable
+                  style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}
+                >
+                  <ThemedText style={styles.filterButtonText}>Intereses</ThemedText>
+                </Pressable>
+              </View>
+
+              <View style={[styles.counterContainer, { backgroundColor: cardColor, borderColor }]}>
+                <IconSymbol name="person.2.fill" color={iconColor} size={20} />
+                <ThemedText style={styles.counterText}>
+                  {filteredUsers.length} personas activas ahora
+                </ThemedText>
+              </View>
+            </>
+          )}
+
+          <Pressable style={[styles.mainButton, { backgroundColor: cardColor }]}>
+            <ThemedText style={[styles.buttonText, { color: textColor }]}>
+              Estoy para cualquiera
+            </ThemedText>
           </Pressable>
-          <Pressable
-            onPress={handleGenderFilterToggle}
-            style={[
-              styles.filterButton,
-              { backgroundColor: cardColor, borderColor },
-              genderFilter ? { backgroundColor: primaryColor, borderColor: primaryColor } : {},
-            ]}
+        </ThemedView>
+
+        <View style={styles.mapContainer}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: -34.58,
+              longitude: -58.42,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            scrollEnabled={false}
+            zoomEnabled={false}
           >
-            <ThemedText
-              style={[styles.filterButtonText, genderFilter ? { color: '#fff' } : {}]}
-            >
-              {getGenderFilterText()}
-            </ThemedText>
-          </Pressable>
-          <Pressable style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}>
-            <ThemedText style={styles.filterButtonText}>Intereses</ThemedText>
-          </Pressable>
+            {MOCK_PLANS.map((plan) => (
+              <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
+            ))}
+          </MapView>
+          <Link href="/map" asChild>
+            <Pressable style={[styles.mapButton, { backgroundColor: primaryColor }]}>
+              <IconSymbol name="map.fill" color="#fff" size={20} />
+              <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
+                Abrir mapa de planes
+              </ThemedText>
+            </Pressable>
+          </Link>
         </View>
-
-        <View style={[styles.counterContainer, { backgroundColor: cardColor, borderColor }]}>
-          <IconSymbol name="person.2.fill" color={iconColor} size={20} />
-          <ThemedText style={styles.counterText}>
-            {filteredUsers.length} personas activas ahora
-          </ThemedText>
-        </View>
-
-        <Pressable style={[styles.mainButton, { backgroundColor: cardColor }]}>
-          <ThemedText style={[styles.buttonText, { color: textColor }]}>
-            Estoy para cualquiera
-          </ThemedText>
-        </Pressable>
       </ThemedView>
-
-      <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: -34.58,
-            longitude: -58.42,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          scrollEnabled={false}
-          zoomEnabled={false}
-        >
-          {MOCK_PLANS.map((plan) => (
-            <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
-          ))}
-        </MapView>
-        <Link href="/map" asChild>
-          <Pressable style={[styles.mapButton, { backgroundColor: primaryColor }]}>
-            <IconSymbol name="map.fill" color="#fff" size={20} />
-            <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
-              Abrir mapa de planes
-            </ThemedText>
-          </Pressable>
-        </Link>
-      </View>
-    </ThemedView>
+    </TouchableWithoutFeedback>
   );
 }
 
