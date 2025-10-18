@@ -12,9 +12,9 @@ import {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import MapView, { Marker } from 'react-native-maps';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -64,9 +64,15 @@ export default function HomeScreen() {
     .onEnd(() => {
       // Animar al punto más cercano (expandido o contraído)
       if (translateY.value < -SCREEN_HEIGHT / 2) {
-        translateY.value = withSpring(EXPANDED_TRANSLATE_Y, { damping: 30 });
+        translateY.value = withTiming(EXPANDED_TRANSLATE_Y, {
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+        });
       } else {
-        translateY.value = withSpring(COLLAPSED_TRANSLATE_Y, { damping: 30 });
+        translateY.value = withTiming(COLLAPSED_TRANSLATE_Y, {
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+        });
       }
     });
 
