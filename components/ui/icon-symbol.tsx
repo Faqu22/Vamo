@@ -1,11 +1,14 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import SFSymbol from 'expo-symbols';
-import { SFSymbolProps } from 'expo-symbols/build/SFSymbol.types';
+import { SymbolView } from 'expo-symbols';
+import React from 'react';
 import { Platform } from 'react-native';
 
 // Define a mapping for SF Symbols to Material Icons for Android/Web compatibility
 const MAPPING = {
   'house.fill': 'home',
+  'message.fill': 'chat',
+  'person.fill': 'person',
+  'map.fill': 'map',
   'square.stack.3d.up.fill': 'layers',
   'info.circle': 'info',
   'xmark.circle.fill': 'cancel',
@@ -18,6 +21,8 @@ const MAPPING = {
 
 export type IconSymbolName = keyof typeof MAPPING;
 
+type SFSymbolProps = React.ComponentProps<typeof SymbolView>;
+
 export type IconSymbolProps = Omit<SFSymbolProps, 'name'> & {
   name: IconSymbolName;
   size?: number;
@@ -26,7 +31,7 @@ export type IconSymbolProps = Omit<SFSymbolProps, 'name'> & {
 
 export function IconSymbol({ name, size = 24, color, ...rest }: IconSymbolProps) {
   if (Platform.OS === 'ios') {
-    return <SFSymbol name={name} size={size} color={color} {...rest} />;
+    return <SymbolView name={name} size={size} tintColor={color} {...rest} />;
   }
 
   const materialIconName = MAPPING[name] as keyof typeof MaterialIcons.glyphMap;
