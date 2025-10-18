@@ -16,6 +16,7 @@ const MAPPING = {
   'chevron.up': 'keyboard-arrow-up',
   'link.circle.fill': 'link',
   'questionmark.circle.fill': 'help',
+  'person.2.fill': 'people',
   // Add more mappings as needed
 };
 

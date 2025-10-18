@@ -2,16 +2,44 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { MOCK_ACTIVE_USERS } from '@/mocksdata/active-users';
 import { MOCK_PLANS } from '@/mocksdata/plans';
 import { Link } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+
+type GenderFilter = 'male' | 'female' | 'other' | null;
 
 export default function HomeScreen() {
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const primaryColor = useThemeColor({}, 'primary');
   const borderColor = useThemeColor({}, 'border');
+  const iconColor = useThemeColor({}, 'icon');
+
+  const [genderFilter, setGenderFilter] = useState<GenderFilter>(null);
+
+  const filteredUsers = useMemo(() => {
+    if (!genderFilter) {
+      return MOCK_ACTIVE_USERS;
+    }
+    return MOCK_ACTIVE_USERS.filter((user) => user.gender === genderFilter);
+  }, [genderFilter]);
+
+  const handleGenderFilterToggle = () => {
+    const genders: GenderFilter[] = [null, 'female', 'male', 'other'];
+    const currentIndex = genders.indexOf(genderFilter);
+    const nextIndex = (currentIndex + 1) % genders.length;
+    setGenderFilter(genders[nextIndex]);
+  };
+
+  const getGenderFilterText = () => {
+    if (genderFilter === 'female') return 'Sexo: Femenino';
+    if (genderFilter === 'male') return 'Sexo: Masculino';
+    if (genderFilter === 'other') return 'Sexo: Otro';
+    return 'Sexo';
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -26,7 +54,37 @@ export default function HomeScreen() {
           style={[styles.input, { backgroundColor: cardColor, color: textColor, borderColor }]}
         />
 
-        <Pressable style={[styles.button, { backgroundColor: cardColor }]}>
+        <View style={styles.filtersContainer}>
+          <Pressable style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}>
+            <ThemedText style={styles.filterButtonText}>Edad</ThemedText>
+          </Pressable>
+          <Pressable
+            onPress={handleGenderFilterToggle}
+            style={[
+              styles.filterButton,
+              { backgroundColor: cardColor, borderColor },
+              genderFilter ? { backgroundColor: primaryColor, borderColor: primaryColor } : {},
+            ]}
+          >
+            <ThemedText
+              style={[styles.filterButtonText, genderFilter ? { color: '#fff' } : {}]}
+            >
+              {getGenderFilterText()}
+            </ThemedText>
+          </Pressable>
+          <Pressable style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}>
+            <ThemedText style={styles.filterButtonText}>Intereses</ThemedText>
+          </Pressable>
+        </View>
+
+        <View style={[styles.counterContainer, { backgroundColor: cardColor, borderColor }]}>
+          <IconSymbol name="person.2.fill" color={iconColor} size={20} />
+          <ThemedText style={styles.counterText}>
+            {filteredUsers.length} personas activas ahora
+          </ThemedText>
+        </View>
+
+        <Pressable style={[styles.mainButton, { backgroundColor: cardColor }]}>
           <ThemedText style={[styles.buttonText, { color: textColor }]}>
             Estoy para cualquiera
           </ThemedText>
@@ -50,7 +108,7 @@ export default function HomeScreen() {
           ))}
         </MapView>
         <Link href="/map" asChild>
-          <Pressable style={[styles.button, styles.mapButton, { backgroundColor: primaryColor }]}>
+          <Pressable style={[styles.mapButton, { backgroundColor: primaryColor }]}>
             <IconSymbol name="map.fill" color="#fff" size={20} />
             <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
               Abrir mapa de planes
@@ -67,9 +125,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   upperContainer: {
-    flex: 2,
+    flex: 2.5,
     justifyContent: 'center',
     padding: 20,
+    gap: 15,
   },
   mapContainer: {
     flex: 1,
@@ -77,8 +136,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    marginBottom: 30,
     textAlign: 'center',
+    marginBottom: 10,
   },
   input: {
     width: '100%',
@@ -87,10 +146,39 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 16,
-    marginBottom: 20,
   },
-  button: {
-    width: '90%',
+  filtersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    gap: 10,
+  },
+  filterButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  filterButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  counterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  counterText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  mainButton: {
+    width: '100%',
     padding: 15,
     borderRadius: 12,
     alignItems: 'center',
@@ -104,6 +192,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     position: 'absolute',
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
