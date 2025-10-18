@@ -35,3 +35,7 @@ To ensure consistency and maintainability, adhere to the following rules when im
 | **Haptics** | `expo-haptics` | Implement soft haptic feedback for key interactions (e.g., tab presses, important button taps). |
 | **Core UI** | Standard React Native components | Use `View`, `Text`, `StyleSheet` for basic layout and styling. |
 | **Data Fetching** | `useSWR` + `axios` | Standard approach for API interaction. |
+
+## Development Constraints
+
+- **package.json:** Never modify the `package.json` file directly.
