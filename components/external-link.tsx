@@ -12,7 +12,7 @@ export function ExternalLink({
     <Link
       target="_blank"
       {...rest}
-      href={href}
+      href={href as any} // Cast to any to allow external URLs
       onPress={async (e) => {
         if (Platform.OS !== 'web') {
           // Prevent the default behavior of linking to the default browser on native.
