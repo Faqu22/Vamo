@@ -1,7 +1,7 @@
 import React from 'react';
 import { Defs, Path, Svg } from 'react-native-svg';
 
-export function VamoLogo({ width = 100, height = 40 }: { width?: number; height?: number }) {
+export function VamoLogo({ width = 125, height = 50 }: { width?: number; height?: number }) {
   return (
     <Svg width={width} height={height} viewBox="0 0 514 219">
       <Defs />
@@ -19,7 +19,7 @@ export function VamoLogo({ width = 100, height = 40 }: { width?: number; height?
       />
       <Path
         d="M 402,40 L 403,39 L 412,39 L 413,40 L 414,40 L 423,49 L 423,50 L 424,51 L 424,52 L 425,53 L 425,54 L 426,55 L 426,57 L 427,58 L 427,60 L 428,61 L 428,64 L 429,65 L 429,71 L 430,72 L 430,88 L 429,89 L 429,95 L 428,96 L 428,98 L 427,99 L 427,101 L 426,102 L 426,104 L 425,105 L 425,106 L 424,107 L 424,108 L 423,109 L 423,110 L 421,112 L 421,113 L 416,118 L 415,118 L 413,120 L 412,120 L 410,122 L 408,122 L 407,123 L 399,123 L 398,122 L 397,122 L 396,121 L 395,121 L 394,120 L 393,120 L 389,116 L 389,115 L 387,113 L 387,112 L 386,111 L 386,109 L 385,108 L 385,106 L 384,105 L 384,102 L 383,101 L 383,94 L 382,93 L 382,85 L 383,84 L 383,77 L 384,76 L 384,72 L 385,71 L 385,68 L 386,67 L 386,64 L 387,63 L 387,62 L 388,61 L 388,59 L 389,58 L 389,56 L 390,55 L 390,54 L 391,53 L 391,52 L 392,51 L 392,50 L 394,48 L 394,47 L 397,44 L 397,43 L 398,42 L 399,42 L 401,40 Z"
-        fill="#40B5E6"
+        fill="white"
         fillRule="evenodd"
         stroke="none"
       />
@@ -31,7 +31,7 @@ export function VamoLogo({ width = 100, height = 40 }: { width?: number; height?
       />
       <Path
         d="M 189,54 L 191,56 L 191,60 L 192,61 L 192,65 L 193,66 L 193,69 L 194,70 L 194,75 L 195,76 L 195,79 L 196,80 L 196,84 L 197,85 L 197,89 L 198,90 L 198,93 L 197,94 L 194,94 L 193,95 L 186,95 L 185,96 L 178,96 L 177,97 L 176,97 L 175,96 L 174,96 L 173,95 L 173,93 L 174,92 L 174,91 L 175,90 L 175,88 L 176,87 L 176,84 L 177,83 L 177,82 L 178,81 L 178,79 L 179,78 L 179,76 L 180,75 L 180,73 L 181,72 L 181,70 L 182,69 L 182,68 L 183,67 L 183,65 L 184,64 L 184,62 L 185,61 L 185,60 L 186,59 L 186,58 L 187,57 L 187,56 Z"
-        fill="#40B5E6"
+        fill="white"
         fillRule="evenodd"
         stroke="none"
       />
