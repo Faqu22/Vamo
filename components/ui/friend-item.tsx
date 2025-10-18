@@ -3,8 +3,7 @@ import { Image } from 'expo-image';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-
-import { Friend } from '@/mocksdata/friends';
+import { Friend } from '@/types/friend';
 
 export function FriendItem({ item }: { item: Friend }) {
   return (

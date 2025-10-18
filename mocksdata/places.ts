@@ -1,10 +1,4 @@
-export interface FrequentPlace {
-  id: string;
-  name: string;
-  address: string;
-  category: string;
-  imageUrl: string;
-}
+import { FrequentPlace } from '@/types/place';
 
 export const MOCK_FREQUENT_PLACES: FrequentPlace[] = [
   {

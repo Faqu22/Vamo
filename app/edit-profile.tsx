@@ -2,8 +2,10 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -16,13 +18,15 @@ import {
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { InterestPill } from '@/components/ui/interest-pill';
+import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { updateUserProfile, userProfileData } from '../data/user';
+import api from '@/lib/api';
 import { UserProfile } from '../types/user';
 
 export default function EditProfileScreen() {
   const router = useRouter();
-  const [editedUser, setEditedUser] = useState<UserProfile>({ ...userProfileData });
+  const { user, isLoading, isError, mutate } = useProfile();
+  const [editedUser, setEditedUser] = useState<UserProfile | null>(null);
   const [newInterest, setNewInterest] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -35,38 +39,83 @@ export default function EditProfileScreen() {
   const headerHeight = useHeaderHeight();
   const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight : 0;
 
+  useEffect(() => {
+    if (user) {
+      setEditedUser({ ...user });
+    }
+  }, [user]);
+
   const handleInputChange = (field: keyof UserProfile, value: string | number | string[]) => {
-    setEditedUser((prev: UserProfile) => ({
-      ...prev,
+    if (!editedUser) return;
+    setEditedUser((prev) => ({
+      ...(prev as UserProfile),
       [field]: value,
     }));
   };
 
-  const handleSave = () => {
-    updateUserProfile(editedUser);
-    router.back();
+  const handleSave = async () => {
+    if (!editedUser) return;
+    try {
+      // Actualización optimista: actualiza la UI localmente primero
+      mutate(editedUser, false);
+      await api.patch('/profile/me', editedUser);
+      // Vuelve a validar los datos con el servidor
+      mutate();
+      router.back();
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      Alert.alert('Error', 'No se pudo actualizar el perfil.');
+      // Revierte la actualización optimista en caso de error
+      mutate(user, false);
+    }
   };
 
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('Lo sentimos, necesitamos permisos para acceder a tus fotos.');
+      Alert.alert('Permisos requeridos', 'Necesitamos acceso a tus fotos para continuar.');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
 
-    if (!result.canceled) {
-      handleInputChange('profilePictureUrl', result.assets[0].uri);
+    if (!result.canceled && result.assets[0].uri) {
+      const uri = result.assets[0].uri;
+      const formData = new FormData();
+      const fileName = uri.split('/').pop() || 'photo.jpg';
+      const fileType = `image/${fileName.split('.').pop()}`;
+
+      formData.append('avatar', {
+        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+        name: fileName,
+        type: fileType,
+      } as any);
+
+      try {
+        const response = await api.post('/profile/me/avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.profilePictureUrl) {
+          handleInputChange('profilePictureUrl', response.data.profilePictureUrl);
+          if (user) {
+            mutate({ ...user, profilePictureUrl: response.data.profilePictureUrl }, false);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+        Alert.alert('Error', 'No se pudo subir la imagen.');
+      }
     }
   };
 
   const handleAddInterest = () => {
+    if (!editedUser) return;
     const trimmedInterest = newInterest.trim();
     if (trimmedInterest && !editedUser.interests.includes(trimmedInterest)) {
       handleInputChange('interests', [...editedUser.interests, trimmedInterest]);
@@ -75,11 +124,28 @@ export default function EditProfileScreen() {
   };
 
   const handleRemoveInterest = (interestToRemove: string) => {
+    if (!editedUser) return;
     const updatedInterests = editedUser.interests.filter(
       (interest) => interest !== interestToRemove
     );
     handleInputChange('interests', updatedInterests);
   };
+
+  if (isLoading || !editedUser) {
+    return (
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={primaryColor} />
+      </ThemedView>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ThemedText>Error al cargar el perfil.</ThemedText>
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
@@ -191,6 +257,10 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: 20,

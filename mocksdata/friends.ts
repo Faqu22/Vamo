@@ -1,8 +1,4 @@
-export interface Friend {
-  id: string;
-  name: string;
-  profilePictureUrl: string;
-}
+import { Friend } from '@/types/friend';
 
 export const MOCK_FRIENDS: Friend[] = [
   { id: '1', name: 'Ana Gómez', profilePictureUrl: 'https://i.pravatar.cc/100?u=anagomez' },

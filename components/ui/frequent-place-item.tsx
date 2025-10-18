@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { FrequentPlace } from '@/mocksdata/places';
+import { FrequentPlace } from '@/types/place';
 
 export function FrequentPlaceItem({ item }: { item: FrequentPlace }) {
   const secondaryTextColor = useThemeColor({}, 'icon');

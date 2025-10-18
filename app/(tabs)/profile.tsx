@@ -1,40 +1,37 @@
-import { useFocusEffect } from 'expo-router';
-import React, { useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
+import React, { useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { FriendItem } from '@/components/ui/friend-item';
 import { FrequentPlaceItem } from '@/components/ui/frequent-place-item';
 import { InterestPill } from '@/components/ui/interest-pill';
-import { userProfileData } from '../../data/user';
+import { useFriends } from '@/hooks/use-friends';
+import { useFrequentPlaces } from '@/hooks/use-frequent-places';
+import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { MOCK_FRIENDS } from '@/mocksdata/friends';
-import { MOCK_FREQUENT_PLACES } from '@/mocksdata/places';
 
 type ActiveTab = 'places' | 'friends';
 
 export default function ProfileScreen() {
-  const [user, setUser] = useState(userProfileData);
+  const { user, isLoading, isError } = useProfile();
+  const { places, isLoading: isLoadingPlaces } = useFrequentPlaces();
+  const { friends, isLoading: isLoadingFriends } = useFriends();
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('places');
   const backgroundColor = useThemeColor({}, 'background');
   const cardColor = useThemeColor({}, 'card');
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryTextColor = useThemeColor({}, 'icon');
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setUser({ ...userProfileData });
-    }, [])
-  );
-
   const renderContent = () => {
     if (activeTab === 'places') {
+      if (isLoadingPlaces) return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
       return (
         <FlatList
           key="places"
-          data={MOCK_FREQUENT_PLACES}
+          data={places}
           renderItem={({ item }) => <FrequentPlaceItem item={item} />}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
@@ -42,10 +39,11 @@ export default function ProfileScreen() {
         />
       );
     }
+    if (isLoadingFriends) return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
     return (
       <FlatList
         key="friends"
-        data={MOCK_FRIENDS}
+        data={friends}
         renderItem={({ item }) => <FriendItem item={item} />}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
@@ -54,6 +52,22 @@ export default function ProfileScreen() {
       />
     );
   };
+
+  if (isLoading) {
+    return (
+      <ThemedView style={styles.centeredContainer}>
+        <ActivityIndicator size="large" color={primaryColor} />
+      </ThemedView>
+    );
+  }
+
+  if (isError || !user) {
+    return (
+      <ThemedView style={styles.centeredContainer}>
+        <ThemedText>Error al cargar el perfil.</ThemedText>
+      </ThemedView>
+    );
+  }
 
   return (
     <ScrollView style={[styles.container, { backgroundColor }]}>
@@ -116,6 +130,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   card: {
     margin: 10,
     borderRadius: 20,
@@ -168,5 +187,8 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingTop: 20,
+  },
+  listLoader: {
+    marginTop: 20,
   },
 });
