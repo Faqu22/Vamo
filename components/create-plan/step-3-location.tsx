@@ -56,6 +56,20 @@ export function Step3Location({ planData, setPlanData }: Props) {
     })();
   }, []);
 
+  useEffect(() => {
+    if (userLocation && !planData.location) {
+      mapRef.current?.animateToRegion(
+        {
+          latitude: userLocation.coords.latitude,
+          longitude: userLocation.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        },
+        1000
+      );
+    }
+  }, [userLocation]);
+
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (text.length > 2) {
