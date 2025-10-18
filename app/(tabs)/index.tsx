@@ -1,3 +1,4 @@
+import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -18,16 +19,23 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { FilterButton } from '@/components/ui/filter-button';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
-import { MOCK_PLANS } from '@/mocksdata/plans';
+import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
 
-const BOTTOM_SHEET_TOP_OFFSET = 100; // Espacio en la parte superior cuando está expandido
+const BOTTOM_SHEET_TOP_OFFSET = 100;
+
+const PLAN_ICONS: Record<Plan['category'], IconSymbolName> = {
+  sport: 'person.2.fill', // Usando un ícono genérico por ahora
+  social: 'person.2.fill',
+  culture: 'person.2.fill',
+};
 
 export default function HomeScreen() {
   const cardColor = useThemeColor({}, 'card');
@@ -36,11 +44,28 @@ export default function HomeScreen() {
   const iconColor = useThemeColor({}, 'icon');
   const backgroundColor = useThemeColor({}, 'background');
   const grabberColor = useThemeColor({ light: '#ccc', dark: '#555' }, 'icon');
+  const primaryColor = useThemeColor({}, 'primary');
 
   const [isFiltersVisible, setFiltersVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
 
   const animatedHeight = useSharedValue(0);
+
+  // --- Lógica de ubicación ---
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setUserLocation(location);
+    })();
+  }, []);
 
   // --- Lógica del panel deslizable ---
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
@@ -57,12 +82,10 @@ export default function HomeScreen() {
     })
     .onUpdate((event) => {
       translateY.value = context.value.y + event.translationY;
-      // Limitar el arrastre para que no se salga de los límites
       translateY.value = Math.max(translateY.value, EXPANDED_TRANSLATE_Y);
       translateY.value = Math.min(translateY.value, COLLAPSED_TRANSLATE_Y);
     })
     .onEnd(() => {
-      // Animar al punto más cercano (expandido o contraído)
       if (translateY.value < -SCREEN_HEIGHT / 2) {
         translateY.value = withTiming(EXPANDED_TRANSLATE_Y, {
           duration: 300,
@@ -76,20 +99,15 @@ export default function HomeScreen() {
       }
     });
 
-  const bottomSheetStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
-  // --- Fin de la lógica del panel ---
+  const bottomSheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      height: animatedHeight.value,
-      opacity: withTiming(animatedHeight.value > 0 ? 1 : 0, { duration: 150 }),
-      overflow: 'hidden',
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: animatedHeight.value,
+    opacity: withTiming(animatedHeight.value > 0 ? 1 : 0, { duration: 150 }),
+    overflow: 'hidden',
+  }));
 
   useEffect(() => {
     animatedHeight.value = withTiming(isFiltersVisible ? 100 : 0, {
@@ -103,19 +121,41 @@ export default function HomeScreen() {
     );
   };
 
+  const mapRegion = userLocation
+    ? {
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }
+    : {
+        latitude: -34.58,
+        longitude: -58.42,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      };
+
   return (
     <ThemedView style={styles.container}>
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: -34.58,
-          longitude: -58.42,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-      >
+      <MapView style={styles.map} region={mapRegion}>
+        {userLocation && (
+          <Marker
+            coordinate={userLocation.coords}
+            title="Tu Ubicación"
+            pinColor={primaryColor}
+          />
+        )}
         {MOCK_PLANS.map((plan) => (
-          <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
+          <Marker
+            key={plan.id}
+            coordinate={plan.coordinate}
+            title={plan.title}
+            onPress={() => setSelectedPlan(plan)}
+          >
+            <View style={[styles.markerContainer, { backgroundColor: primaryColor }]}>
+              <IconSymbol name={PLAN_ICONS[plan.category]} color="#fff" size={18} />
+            </View>
+          </Marker>
         ))}
       </MapView>
 
@@ -174,7 +214,7 @@ export default function HomeScreen() {
             data={MOCK_PLANS}
             renderItem={({ item }) => (
               <View style={styles.planItemWrapper}>
-                <PlanItem item={item} />
+                <PlanItem item={item} onPress={() => setSelectedPlan(item)} />
               </View>
             )}
             keyExtractor={(item) => item.id}
@@ -183,6 +223,10 @@ export default function HomeScreen() {
           />
         </Animated.View>
       </GestureDetector>
+
+      {selectedPlan && (
+        <PlanDetailModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
+      )}
     </ThemedView>
   );
 }
@@ -201,15 +245,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1,
-    // Shadow for iOS
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    // Elevation for Android
     elevation: 3,
   },
   searchBar: {
@@ -228,21 +267,15 @@ const styles = StyleSheet.create({
   filtersContainer: {
     paddingVertical: 10,
   },
-  // Bottom Sheet styles
   bottomSheetContainer: {
     height: '100%',
     width: '100%',
     position: 'absolute',
     borderRadius: 25,
-    // Shadow for iOS
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
+    shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    // Elevation for Android
     elevation: 5,
   },
   line: {
@@ -259,5 +292,11 @@ const styles = StyleSheet.create({
   planItemWrapper: {
     marginBottom: 10,
     marginHorizontal: 20,
+  },
+  markerContainer: {
+    padding: 8,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
