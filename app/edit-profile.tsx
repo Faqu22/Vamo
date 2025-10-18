@@ -1,4 +1,7 @@
+import { useHeaderHeight } from '@react-navigation/elements';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import { Stack, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -9,15 +12,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { Image } from 'expo-image';
-import { Stack, useRouter } from 'expo-router';
-import { useHeaderHeight } from '@react-navigation/elements';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { InterestPill } from '@/components/ui/interest-pill';
-import { updateUserProfile, userProfileData } from '../data/user';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { updateUserProfile, userProfileData } from '../data/user';
 import { UserProfile } from '../types/user';
 
 export default function EditProfileScreen() {
@@ -55,7 +55,7 @@ export default function EditProfileScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
