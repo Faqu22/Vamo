@@ -30,6 +30,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="map" options={{ presentation: 'modal' }} />
           <Stack.Screen name="edit-profile" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="(create-plan)" options={{ presentation: 'modal', headerShown: false }} />
         </Stack>
       </ThemeProvider>
     </GestureHandlerRootView>

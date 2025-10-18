@@ -1,4 +1,5 @@
 import * as Location from 'expo-location';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
@@ -19,7 +20,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { CreatePlanModal } from '@/components/modals/create-plan-modal';
 import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -41,6 +41,7 @@ const PLAN_ICONS: Record<Plan['category'], IconSymbolName> = {
 };
 
 export default function HomeScreen() {
+  const router = useRouter();
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
@@ -53,7 +54,6 @@ export default function HomeScreen() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [isCreatePlanModalVisible, setCreatePlanModalVisible] = useState(false);
 
   const mapRef = useRef<MapView>(null);
   const animatedHeight = useSharedValue(0);
@@ -182,7 +182,7 @@ export default function HomeScreen() {
       />
       <FloatingActionButton
         iconName="plus"
-        onPress={() => setCreatePlanModalVisible(true)}
+        onPress={() => router.push('/(create-plan)/step1')}
         bottomPosition={COLLAPSED_HEIGHT + 20}
         side="right"
       />
@@ -254,10 +254,6 @@ export default function HomeScreen() {
 
       {selectedPlan && (
         <PlanDetailModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
-      )}
-
-      {isCreatePlanModalVisible && (
-        <CreatePlanModal onClose={() => setCreatePlanModalVisible(false)} />
       )}
     </ThemedView>
   );
