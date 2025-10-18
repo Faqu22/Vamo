@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -121,83 +123,90 @@ export function Step3Location({ planData, setPlanData }: Props) {
   };
 
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      style={styles.container}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ flexGrow: 1 }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.keyboardAvoidingView}
     >
-      <ThemedText type="title">¿Dónde nos encontramos?</ThemedText>
-      <View style={styles.searchContainer}>
-        <View style={[styles.searchBar, { backgroundColor: cardColor, borderColor }]}>
-          <IconSymbol name="magnifyingglass" color={iconColor} size={20} />
-          <TextInput
-            placeholder="Buscar lugar o dirección"
-            placeholderTextColor="#999"
-            style={[styles.input, { color: textColor }]}
-            value={searchQuery}
-            onChangeText={handleSearch}
-          />
-        </View>
-        {searchResults.length > 0 && (
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <Pressable
-                style={[styles.resultItem, { borderBottomColor: borderColor }]}
-                onPress={() => handleSelectLocation(item)}
-              >
-                <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
-                <ThemedText style={{ fontSize: 14, color: iconColor }}>{item.address}</ThemedText>
-              </Pressable>
-            )}
-            style={[styles.resultsList, { backgroundColor: cardColor, borderColor }]}
-          />
-        )}
-      </View>
-
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={getInitialRegion()}
-        onPress={handleMapPress}
-        showsUserLocation
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.container}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
       >
-        {planData.location && (
-          <Marker
-            coordinate={{
-              latitude: planData.location.latitude,
-              longitude: planData.location.longitude,
-            }}
-          />
-        )}
-      </MapView>
+        <ThemedText type="title">¿Dónde nos encontramos?</ThemedText>
+        <View style={styles.searchContainer}>
+          <View style={[styles.searchBar, { backgroundColor: cardColor, borderColor }]}>
+            <IconSymbol name="magnifyingglass" color={iconColor} size={20} />
+            <TextInput
+              placeholder="Buscar lugar o dirección"
+              placeholderTextColor="#999"
+              style={[styles.input, { color: textColor }]}
+              value={searchQuery}
+              onChangeText={handleSearch}
+            />
+          </View>
+          {searchResults.length > 0 && (
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={[styles.resultItem, { borderBottomColor: borderColor }]}
+                  onPress={() => handleSelectLocation(item)}
+                >
+                  <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
+                  <ThemedText style={{ fontSize: 14, color: iconColor }}>{item.address}</ThemedText>
+                </Pressable>
+              )}
+              style={[styles.resultsList, { backgroundColor: cardColor, borderColor }]}
+            />
+          )}
+        </View>
 
-      <ThemedText style={styles.label}>Descripción (opcional)</ThemedText>
-      <TextInput
-        placeholder="Ej: Nos vemos en la puerta principal"
-        placeholderTextColor="#999"
-        value={planData.locationDescription}
-        onChangeText={(text) => setPlanData((prev) => ({ ...prev, locationDescription: text }))}
-        style={[
-          styles.descriptionInput,
-          { color: textColor, borderColor, backgroundColor: cardColor },
-        ]}
-        multiline
-        onFocus={() => {
-          setTimeout(() => {
-            scrollViewRef.current?.scrollToEnd({ animated: true });
-          }, 100);
-        }}
-      />
-    </ScrollView>
+        <MapView
+          ref={mapRef}
+          style={styles.map}
+          initialRegion={getInitialRegion()}
+          onPress={handleMapPress}
+          showsUserLocation
+        >
+          {planData.location && (
+            <Marker
+              coordinate={{
+                latitude: planData.location.latitude,
+                longitude: planData.location.longitude,
+              }}
+            />
+          )}
+        </MapView>
+
+        <ThemedText style={styles.label}>Descripción (opcional)</ThemedText>
+        <TextInput
+          placeholder="Ej: Nos vemos en la puerta principal"
+          placeholderTextColor="#999"
+          value={planData.locationDescription}
+          onChangeText={(text) => setPlanData((prev) => ({ ...prev, locationDescription: text }))}
+          style={[
+            styles.descriptionInput,
+            { color: textColor, borderColor, backgroundColor: cardColor },
+          ]}
+          multiline
+          onFocus={() => {
+            setTimeout(() => {
+              scrollViewRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+          }}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  keyboardAvoidingView: {
     flex: 1,
+  },
+  container: {
     width: '100%',
   },
   searchContainer: {
