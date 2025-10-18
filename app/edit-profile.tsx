@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -23,6 +23,7 @@ export default function EditProfileScreen() {
   const router = useRouter();
   const [editedUser, setEditedUser] = useState<UserProfile>({ ...userProfileData });
   const [newInterest, setNewInterest] = useState('');
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const backgroundColor = useThemeColor({}, 'background');
   const cardColor = useThemeColor({}, 'card');
@@ -92,7 +93,7 @@ export default function EditProfileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView ref={scrollViewRef} contentContainerStyle={styles.content}>
           <Pressable style={styles.header} onPress={handlePickImage}>
             <Image source={{ uri: editedUser.profilePictureUrl }} style={styles.profilePicture} />
             <ThemedText style={{ color: primaryColor }}>Cambiar foto de perfil</ThemedText>
@@ -158,6 +159,11 @@ export default function EditProfileScreen() {
                   { color: textColor, borderColor, backgroundColor: cardColor },
                 ]}
                 onSubmitEditing={handleAddInterest}
+                onFocus={() => {
+                  setTimeout(() => {
+                    scrollViewRef.current?.scrollToEnd({ animated: true });
+                  }, 100);
+                }}
               />
               <Pressable
                 onPress={handleAddInterest}
