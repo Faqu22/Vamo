@@ -19,7 +19,6 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'VAMO',
-          headerTransparent: true,
           tabBarIcon: ({ color, focused }) => <IconSymbol name="house.fill" color={color} />,
         }}
       />
