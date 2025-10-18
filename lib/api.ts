@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import { getToken } from './auth-storage';
 
 // En el emulador de Android, localhost se mapea a 10.0.2.2. En el simulador de iOS, es localhost.
-const API_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+const API_HOST = Platform.OS === 'android' ? 'localhost' : 'localhost';
 const API_PORT = 8000;
 
 // Usamos /api como base para que coincida con los ejemplos de cURL proporcionados.
@@ -20,13 +20,17 @@ const api = axios.create({
 // Añadimos un interceptor para incluir el token de autenticación en cada solicitud.
 api.interceptors.request.use(
   async (config) => {
+    console.log("ENTRE")
     const token = await getToken();
+    console.log("token ", token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log(config)
     return config;
   },
   (error) => {
+    console.log("error", error)
     return Promise.reject(error);
   }
 );
