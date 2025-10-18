@@ -31,21 +31,6 @@ export default function HomeScreen() {
             Estoy para cualquiera
           </ThemedText>
         </Pressable>
-
-        <ThemedView style={styles.separator}>
-          <ThemedView style={[styles.line, { backgroundColor: borderColor }]} />
-          <ThemedText style={styles.separatorText}>o</ThemedText>
-          <ThemedView style={[styles.line, { backgroundColor: borderColor }]} />
-        </ThemedView>
-
-        <Link href="/map" asChild>
-          <Pressable style={[styles.button, styles.mapButton, { backgroundColor: primaryColor }]}>
-            <IconSymbol name="map.fill" color="#fff" size={20} />
-            <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
-              Abrir mapa de planes
-            </ThemedText>
-          </Pressable>
-        </Link>
       </ThemedView>
 
       <View style={styles.mapContainer}>
@@ -64,6 +49,14 @@ export default function HomeScreen() {
             <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
           ))}
         </MapView>
+        <Link href="/map" asChild>
+          <Pressable style={[styles.button, styles.mapButton, { backgroundColor: primaryColor }]}>
+            <IconSymbol name="map.fill" color="#fff" size={20} />
+            <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
+              Abrir mapa de planes
+            </ThemedText>
+          </Pressable>
+        </Link>
       </View>
     </ThemedView>
   );
@@ -80,6 +73,8 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     marginBottom: 30,
@@ -95,7 +90,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    width: '100%',
+    width: '90%',
     padding: 15,
     borderRadius: 12,
     alignItems: 'center',
@@ -108,20 +103,7 @@ const styles = StyleSheet.create({
   mapButton: {
     flexDirection: 'row',
     gap: 10,
-  },
-  separator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginVertical: 20,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-  },
-  separatorText: {
-    marginHorizontal: 10,
-    color: '#999',
+    position: 'absolute',
   },
   map: {
     ...StyleSheet.absoluteFillObject,

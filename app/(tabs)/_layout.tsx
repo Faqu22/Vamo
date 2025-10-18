@@ -12,13 +12,13 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
-        headerShown: false,
+        headerShown: true,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Vamo',
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol name="house.fill" color={color} />
           ),
