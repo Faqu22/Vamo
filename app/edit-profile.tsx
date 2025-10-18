@@ -1,3 +1,4 @@
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -13,6 +14,7 @@ import { UserProfile } from '../types/user';
 export default function EditProfileScreen() {
   const router = useRouter();
   const [editedUser, setEditedUser] = useState<UserProfile>({ ...userProfileData });
+  const [newInterest, setNewInterest] = useState('');
 
   const backgroundColor = useThemeColor({}, 'background');
   const cardColor = useThemeColor({}, 'card');
@@ -20,17 +22,50 @@ export default function EditProfileScreen() {
   const borderColor = useThemeColor({}, 'border');
   const primaryColor = useThemeColor({}, 'primary');
 
-  const handleInputChange = (field: keyof UserProfile, value: string) => {
-    const isNumeric = field === 'age';
+  const handleInputChange = (field: keyof UserProfile, value: string | number | string[]) => {
     setEditedUser((prev: UserProfile) => ({
       ...prev,
-      [field]: isNumeric ? Number(value) : value,
+      [field]: value,
     }));
   };
 
   const handleSave = () => {
     updateUserProfile(editedUser);
     router.back();
+  };
+
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Lo sentimos, necesitamos permisos para acceder a tus fotos.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      handleInputChange('profilePictureUrl', result.assets[0].uri);
+    }
+  };
+
+  const handleAddInterest = () => {
+    const trimmedInterest = newInterest.trim();
+    if (trimmedInterest && !editedUser.interests.includes(trimmedInterest)) {
+      handleInputChange('interests', [...editedUser.interests, trimmedInterest]);
+      setNewInterest('');
+    }
+  };
+
+  const handleRemoveInterest = (interestToRemove: string) => {
+    const updatedInterests = editedUser.interests.filter(
+      (interest) => interest !== interestToRemove
+    );
+    handleInputChange('interests', updatedInterests);
   };
 
   return (
@@ -46,10 +81,10 @@ export default function EditProfileScreen() {
         }}
       />
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
+        <Pressable style={styles.header} onPress={handlePickImage}>
           <Image source={{ uri: editedUser.profilePictureUrl }} style={styles.profilePicture} />
           <ThemedText style={{ color: primaryColor }}>Cambiar foto de perfil</ThemedText>
-        </View>
+        </Pressable>
 
         <View style={styles.form}>
           <ThemedText style={styles.label}>Nombre</ThemedText>
@@ -69,7 +104,7 @@ export default function EditProfileScreen() {
           <ThemedText style={styles.label}>Edad</ThemedText>
           <TextInput
             value={String(editedUser.age)}
-            onChangeText={(text) => handleInputChange('age', text)}
+            onChangeText={(text) => handleInputChange('age', Number(text))}
             keyboardType="numeric"
             style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
           />
@@ -93,8 +128,31 @@ export default function EditProfileScreen() {
           </ThemedText>
           <View style={styles.interestsContainer}>
             {editedUser.interests.map((interest: string) => (
-              <InterestPill key={interest} label={interest} />
+              <InterestPill
+                key={interest}
+                label={interest}
+                onRemove={() => handleRemoveInterest(interest)}
+              />
             ))}
+          </View>
+          <View style={styles.addInterestContainer}>
+            <TextInput
+              placeholder="Añadir interés"
+              value={newInterest}
+              onChangeText={setNewInterest}
+              style={[
+                styles.input,
+                styles.addInterestInput,
+                { color: textColor, borderColor, backgroundColor: cardColor },
+              ]}
+              onSubmitEditing={handleAddInterest}
+            />
+            <Pressable
+              onPress={handleAddInterest}
+              style={[styles.addButton, { backgroundColor: primaryColor }]}
+            >
+              <ThemedText style={styles.addButtonText}>Añadir</ThemedText>
+            </Pressable>
           </View>
         </View>
       </ScrollView>
@@ -147,5 +205,24 @@ const styles = StyleSheet.create({
   interestsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    marginBottom: 10,
+  },
+  addInterestContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addInterestInput: {
+    flex: 1,
+    marginRight: 10,
+    marginBottom: 0,
+  },
+  addButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 10,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

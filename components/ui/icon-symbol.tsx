@@ -12,6 +12,7 @@ const MAPPING = {
   'square.stack.3d.up.fill': 'layers',
   'info.circle': 'info',
   'xmark.circle.fill': 'cancel',
+  xmark: 'close',
   'chevron.down': 'keyboard-arrow-down',
   'chevron.up': 'keyboard-arrow-up',
   'link.circle.fill': 'link',
