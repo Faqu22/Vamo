@@ -1,6 +1,6 @@
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { OptionButton } from '@/components/ui/option-button';
 import { ThemedText } from '@/components/themed-text';
@@ -44,19 +44,60 @@ export function Step2Time({ planData, setPlanData }: Props) {
   };
 
   const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentPicker = showPickerFor;
     setShowPickerFor(null);
-    if (event.type === 'set' && selectedDate) {
-      const formattedTime = selectedDate.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      });
-      if (showPickerFor === 'start') {
-        setPlanData((prev) => ({ ...prev, availabilityStart: formattedTime }));
-      } else {
-        setPlanData((prev) => ({ ...prev, availabilityEnd: formattedTime }));
-      }
+
+    if (event.type !== 'set' || !selectedDate) {
+      return;
     }
+
+    const formattedTime = selectedDate.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+
+    if (currentPicker === 'start') {
+      const [newStartHour, newStartMinute] = formattedTime.split(':').map(Number);
+      let newEndTime = planData.availabilityEnd;
+
+      if (planData.availabilityEnd) {
+        const [endHour, endMinute] = planData.availabilityEnd.split(':').map(Number);
+        if (newStartHour > endHour || (newStartHour === endHour && newStartMinute >= endMinute)) {
+          newEndTime = undefined;
+        }
+      }
+      setPlanData((prev) => ({
+        ...prev,
+        availabilityStart: formattedTime,
+        availabilityEnd: newEndTime,
+      }));
+    } else if (currentPicker === 'end') {
+      if (planData.availabilityStart) {
+        const [startHour, startMinute] = planData.availabilityStart.split(':').map(Number);
+        const endHour = selectedDate.getHours();
+        const endMinute = selectedDate.getMinutes();
+
+        if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
+          Alert.alert(
+            'Hora inválida',
+            'La hora de finalización debe ser posterior a la hora de inicio.'
+          );
+          return;
+        }
+      }
+      setPlanData((prev) => ({ ...prev, availabilityEnd: formattedTime }));
+    }
+  };
+
+  const getMinimumEndDate = () => {
+    if (planData.availabilityStart) {
+      const [startHour, startMinute] = planData.availabilityStart.split(':').map(Number);
+      const minDate = new Date();
+      minDate.setHours(startHour, startMinute);
+      return minDate;
+    }
+    return new Date();
   };
 
   return (
@@ -113,7 +154,7 @@ export function Step2Time({ planData, setPlanData }: Props) {
             </Pressable>
             <Pressable
               style={[styles.input, { backgroundColor: cardColor, borderColor }]}
-              onPress={() => setShowPickerFor('end')}
+              onPress={() => planData.availabilityStart && setShowPickerFor('end')}
             >
               <ThemedText style={{ color: planData.availabilityEnd ? textColor : placeholderColor }}>
                 {planData.availabilityEnd || 'Hasta (ej: 16:00)'}
@@ -130,6 +171,7 @@ export function Step2Time({ planData, setPlanData }: Props) {
           is24Hour={true}
           display={Platform.OS === 'ios' ? 'spinner' : 'clock'}
           onChange={onTimeChange}
+          minimumDate={showPickerFor === 'end' ? getMinimumEndDate() : undefined}
         />
       )}
     </ScrollView>
