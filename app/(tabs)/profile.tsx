@@ -33,6 +33,7 @@ export default function ProfileScreen() {
     if (activeTab === 'places') {
       return (
         <FlatList
+          key="places"
           data={MOCK_FREQUENT_PLACES}
           renderItem={({ item }) => <FrequentPlaceItem item={item} />}
           keyExtractor={(item) => item.id}
@@ -43,6 +44,7 @@ export default function ProfileScreen() {
     }
     return (
       <FlatList
+        key="friends"
         data={MOCK_FRIENDS}
         renderItem={({ item }) => <FriendItem item={item} />}
         keyExtractor={(item) => item.id}
