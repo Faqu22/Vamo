@@ -18,6 +18,7 @@ const MAPPING = {
   'questionmark.circle.fill': 'help',
   'person.2.fill': 'people',
   'checkmark.circle.fill': 'check-circle',
+  magnifyingglass: 'search',
   // Add more mappings as needed
 };
 

@@ -18,28 +18,23 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Vamo',
-          tabBarIcon: ({ color, focused }) => (
-            <IconSymbol name="house.fill" color={color} />
-          ),
+          title: 'VAMO',
+          headerTransparent: true,
+          tabBarIcon: ({ color, focused }) => <IconSymbol name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="messages"
         options={{
           title: 'Mensajes',
-          tabBarIcon: ({ color, focused }) => (
-            <IconSymbol name="message.fill" color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => <IconSymbol name="message.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color, focused }) => (
-            <IconSymbol name="person.fill" color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => <IconSymbol name="person.fill" color={color} />,
         }}
       />
     </Tabs>
