@@ -64,9 +64,9 @@ export default function HomeScreen() {
     .onEnd(() => {
       // Animar al punto más cercano (expandido o contraído)
       if (translateY.value < -SCREEN_HEIGHT / 2) {
-        translateY.value = withSpring(EXPANDED_TRANSLATE_Y, { damping: 15 });
+        translateY.value = withSpring(EXPANDED_TRANSLATE_Y, { damping: 30 });
       } else {
-        translateY.value = withSpring(COLLAPSED_TRANSLATE_Y, { damping: 15 });
+        translateY.value = withSpring(COLLAPSED_TRANSLATE_Y, { damping: 30 });
       }
     });
 
