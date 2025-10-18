@@ -13,6 +13,13 @@ This document outlines the core technologies and guidelines for developing compo
 7.  **Animations:** `react-native-reanimated` is the designated library for all complex and gesture-driven animations.
 8.  **Haptics:** `expo-haptics` is used to provide tactile feedback for user interactions.
 9.  **Images:** `expo-image` is used for optimized image handling.
+10. **Backend:** Django Ninja (Python) will be used for the API.
+
+## Data Handling Guidelines
+
+1.  **Fetching:** All data fetching must be handled using `useSWR` combined with `axios`.
+2.  **Initial Development:** To accelerate development, features should initially use **mock data** (`mocksdata`).
+3.  **Migration:** The application will later migrate from mock data to the actual Django Ninja backend endpoints.
 
 ## Library Usage Guidelines
 
@@ -27,3 +34,4 @@ To ensure consistency and maintainability, adhere to the following rules when im
 | **External Links** | `ExternalLink` | Use this component (from `components/external-link.tsx`) when navigating to URLs outside the application. |
 | **Haptics** | `expo-haptics` | Implement soft haptic feedback for key interactions (e.g., tab presses, important button taps). |
 | **Core UI** | Standard React Native components | Use `View`, `Text`, `StyleSheet` for basic layout and styling. |
+| **Data Fetching** | `useSWR` + `axios` | Standard approach for API interaction. |
