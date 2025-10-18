@@ -1,4 +1,6 @@
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { OptionButton } from '@/components/ui/option-button';
 import { ThemedText } from '@/components/themed-text';
@@ -19,6 +21,9 @@ export function Step2Time({ planData, setPlanData }: Props) {
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
+  const placeholderColor = useThemeColor({ light: '#999', dark: '#777' }, 'icon');
+
+  const [showPickerFor, setShowPickerFor] = useState<'start' | 'end' | null>(null);
 
   const handleWhenChange = (when: NewPlan['when']) => {
     if (when === 'Ahora') {
@@ -35,6 +40,22 @@ export function Step2Time({ planData, setPlanData }: Props) {
         when,
         duration: undefined,
       }));
+    }
+  };
+
+  const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowPickerFor(null);
+    if (event.type === 'set' && selectedDate) {
+      const formattedTime = selectedDate.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      if (showPickerFor === 'start') {
+        setPlanData((prev) => ({ ...prev, availabilityStart: formattedTime }));
+      } else {
+        setPlanData((prev) => ({ ...prev, availabilityEnd: formattedTime }));
+      }
     }
   };
 
@@ -82,22 +103,34 @@ export function Step2Time({ planData, setPlanData }: Props) {
         <>
           <ThemedText style={styles.label}>Disponibilidad horaria</ThemedText>
           <View style={styles.timeRangeContainer}>
-            <TextInput
-              placeholder="Desde (ej: 14:00)"
-              placeholderTextColor="#999"
-              style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-              value={planData.availabilityStart}
-              onChangeText={(text) => setPlanData((prev) => ({ ...prev, availabilityStart: text }))}
-            />
-            <TextInput
-              placeholder="Hasta (ej: 16:00)"
-              placeholderTextColor="#999"
-              style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-              value={planData.availabilityEnd}
-              onChangeText={(text) => setPlanData((prev) => ({ ...prev, availabilityEnd: text }))}
-            />
+            <Pressable
+              style={[styles.input, { backgroundColor: cardColor, borderColor }]}
+              onPress={() => setShowPickerFor('start')}
+            >
+              <ThemedText style={{ color: planData.availabilityStart ? textColor : placeholderColor }}>
+                {planData.availabilityStart || 'Desde (ej: 14:00)'}
+              </ThemedText>
+            </Pressable>
+            <Pressable
+              style={[styles.input, { backgroundColor: cardColor, borderColor }]}
+              onPress={() => setShowPickerFor('end')}
+            >
+              <ThemedText style={{ color: planData.availabilityEnd ? textColor : placeholderColor }}>
+                {planData.availabilityEnd || 'Hasta (ej: 16:00)'}
+              </ThemedText>
+            </Pressable>
           </View>
         </>
+      )}
+
+      {showPickerFor && (
+        <DateTimePicker
+          value={new Date()}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={onTimeChange}
+        />
       )}
     </ScrollView>
   );
@@ -134,5 +167,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     fontSize: 16,
+    justifyContent: 'center',
   },
 });
