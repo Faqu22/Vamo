@@ -17,6 +17,7 @@ const MAPPING = {
   'link.circle.fill': 'link',
   'questionmark.circle.fill': 'help',
   'person.2.fill': 'people',
+  'checkmark.circle.fill': 'check-circle',
   // Add more mappings as needed
 };
 

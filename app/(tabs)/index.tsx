@@ -134,10 +134,10 @@ export default function HomeScreen() {
             ))}
           </MapView>
           <Link href="/map" asChild>
-            <Pressable style={[styles.mapButton, { backgroundColor: primaryColor }]}>
-              <IconSymbol name="map.fill" color="#fff" size={20} />
-              <ThemedText style={[styles.buttonText, { color: '#fff' }]}>
-                Abrir mapa de planes
+            <Pressable style={[styles.mapButton, { backgroundColor: cardColor }]}>
+              <IconSymbol name="checkmark.circle.fill" color="#4CAF50" size={22} />
+              <ThemedText style={[styles.buttonText, { color: textColor }]}>
+                {MOCK_PLANS.length} planes activos cerca
               </ThemedText>
             </Pressable>
           </Link>
@@ -223,11 +223,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     position: 'absolute',
+    bottom: 20,
     padding: 15,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     width: '90%',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // Elevation for Android
+    elevation: 5,
   },
   map: {
     ...StyleSheet.absoluteFillObject,
