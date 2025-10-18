@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -57,7 +57,7 @@ export function Select<T extends string | number>({
         onRequestClose={() => setModalVisible(false)}
       >
         <Pressable style={styles.overlay} onPress={() => setModalVisible(false)}>
-          <Pressable>
+          <View onStartShouldSetResponder={() => true}>
             <ThemedView style={[styles.modalContainer, { backgroundColor: cardColor }]}>
               {options.map((option) => (
                 <Pressable
@@ -76,7 +76,7 @@ export function Select<T extends string | number>({
                 </Pressable>
               ))}
             </ThemedView>
-          </Pressable>
+          </View>
         </Pressable>
       </Modal>
     </>
