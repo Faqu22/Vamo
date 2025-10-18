@@ -1,6 +1,14 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
 
@@ -80,82 +88,87 @@ export default function EditProfileScreen() {
           ),
         }}
       />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Pressable style={styles.header} onPress={handlePickImage}>
-          <Image source={{ uri: editedUser.profilePictureUrl }} style={styles.profilePicture} />
-          <ThemedText style={{ color: primaryColor }}>Cambiar foto de perfil</ThemedText>
-        </Pressable>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.content}>
+          <Pressable style={styles.header} onPress={handlePickImage}>
+            <Image source={{ uri: editedUser.profilePictureUrl }} style={styles.profilePicture} />
+            <ThemedText style={{ color: primaryColor }}>Cambiar foto de perfil</ThemedText>
+          </Pressable>
 
-        <View style={styles.form}>
-          <ThemedText style={styles.label}>Nombre</ThemedText>
-          <TextInput
-            value={editedUser.name}
-            onChangeText={(text) => handleInputChange('name', text)}
-            style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-          />
-
-          <ThemedText style={styles.label}>Apellido</ThemedText>
-          <TextInput
-            value={editedUser.lastName}
-            onChangeText={(text) => handleInputChange('lastName', text)}
-            style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-          />
-
-          <ThemedText style={styles.label}>Edad</ThemedText>
-          <TextInput
-            value={String(editedUser.age)}
-            onChangeText={(text) => handleInputChange('age', Number(text))}
-            keyboardType="numeric"
-            style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-          />
-
-          <ThemedText style={styles.label}>Biografía</ThemedText>
-          <TextInput
-            value={editedUser.bio}
-            onChangeText={(text) => handleInputChange('bio', text)}
-            multiline
-            style={[
-              styles.input,
-              styles.textArea,
-              { color: textColor, borderColor, backgroundColor: cardColor },
-            ]}
-          />
-        </View>
-
-        <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Intereses
-          </ThemedText>
-          <View style={styles.interestsContainer}>
-            {editedUser.interests.map((interest: string) => (
-              <InterestPill
-                key={interest}
-                label={interest}
-                onRemove={() => handleRemoveInterest(interest)}
-              />
-            ))}
-          </View>
-          <View style={styles.addInterestContainer}>
+          <View style={styles.form}>
+            <ThemedText style={styles.label}>Nombre</ThemedText>
             <TextInput
-              placeholder="Añadir interés"
-              value={newInterest}
-              onChangeText={setNewInterest}
+              value={editedUser.name}
+              onChangeText={(text) => handleInputChange('name', text)}
+              style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
+            />
+
+            <ThemedText style={styles.label}>Apellido</ThemedText>
+            <TextInput
+              value={editedUser.lastName}
+              onChangeText={(text) => handleInputChange('lastName', text)}
+              style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
+            />
+
+            <ThemedText style={styles.label}>Edad</ThemedText>
+            <TextInput
+              value={String(editedUser.age)}
+              onChangeText={(text) => handleInputChange('age', Number(text))}
+              keyboardType="numeric"
+              style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
+            />
+
+            <ThemedText style={styles.label}>Biografía</ThemedText>
+            <TextInput
+              value={editedUser.bio}
+              onChangeText={(text) => handleInputChange('bio', text)}
+              multiline
               style={[
                 styles.input,
-                styles.addInterestInput,
+                styles.textArea,
                 { color: textColor, borderColor, backgroundColor: cardColor },
               ]}
-              onSubmitEditing={handleAddInterest}
             />
-            <Pressable
-              onPress={handleAddInterest}
-              style={[styles.addButton, { backgroundColor: primaryColor }]}
-            >
-              <ThemedText style={styles.addButtonText}>Añadir</ThemedText>
-            </Pressable>
           </View>
-        </View>
-      </ScrollView>
+
+          <View style={styles.section}>
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              Intereses
+            </ThemedText>
+            <View style={styles.interestsContainer}>
+              {editedUser.interests.map((interest: string) => (
+                <InterestPill
+                  key={interest}
+                  label={interest}
+                  onRemove={() => handleRemoveInterest(interest)}
+                />
+              ))}
+            </View>
+            <View style={styles.addInterestContainer}>
+              <TextInput
+                placeholder="Añadir interés"
+                value={newInterest}
+                onChangeText={setNewInterest}
+                style={[
+                  styles.input,
+                  styles.addInterestInput,
+                  { color: textColor, borderColor, backgroundColor: cardColor },
+                ]}
+                onSubmitEditing={handleAddInterest}
+              />
+              <Pressable
+                onPress={handleAddInterest}
+                style={[styles.addButton, { backgroundColor: primaryColor }]}
+              >
+                <ThemedText style={styles.addButtonText}>Añadir</ThemedText>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ThemedView>
   );
 }
