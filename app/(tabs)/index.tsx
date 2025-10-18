@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Keyboard,
@@ -23,8 +23,10 @@ import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { FilterButton } from '@/components/ui/filter-button';
+import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
+import { UserLocationMarker } from '@/components/ui/user-location-marker';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
 import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
@@ -32,7 +34,7 @@ import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
 const BOTTOM_SHEET_TOP_OFFSET = 100;
 
 const PLAN_ICONS: Record<Plan['category'], IconSymbolName> = {
-  sport: 'person.2.fill', // Usando un ícono genérico por ahora
+  sport: 'person.2.fill',
   social: 'person.2.fill',
   culture: 'person.2.fill',
 };
@@ -51,9 +53,9 @@ export default function HomeScreen() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
 
+  const mapRef = useRef<MapView>(null);
   const animatedHeight = useSharedValue(0);
 
-  // --- Lógica de ubicación ---
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -67,7 +69,6 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  // --- Lógica del panel deslizable ---
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
   const COLLAPSED_HEIGHT = SCREEN_HEIGHT / 3;
   const EXPANDED_TRANSLATE_Y = -SCREEN_HEIGHT + BOTTOM_SHEET_TOP_OFFSET;
@@ -121,6 +122,20 @@ export default function HomeScreen() {
     );
   };
 
+  const centerOnUserLocation = () => {
+    if (mapRef.current && userLocation) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: userLocation.coords.latitude,
+          longitude: userLocation.coords.longitude,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
+        },
+        1000
+      );
+    }
+  };
+
   const mapRegion = userLocation
     ? {
         latitude: userLocation.coords.latitude,
@@ -137,13 +152,11 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <MapView style={styles.map} region={mapRegion}>
+      <MapView ref={mapRef} style={styles.map} region={mapRegion}>
         {userLocation && (
-          <Marker
-            coordinate={userLocation.coords}
-            title="Tu Ubicación"
-            pinColor={primaryColor}
-          />
+          <Marker coordinate={userLocation.coords} title="Tu Ubicación">
+            <UserLocationMarker />
+          </Marker>
         )}
         {MOCK_PLANS.map((plan) => (
           <Marker
@@ -158,6 +171,12 @@ export default function HomeScreen() {
           </Marker>
         ))}
       </MapView>
+
+      <FloatingActionButton
+        iconName="location.fill"
+        onPress={centerOnUserLocation}
+        bottomPosition={COLLAPSED_HEIGHT + 20}
+      />
 
       <View style={[styles.searchSection, { backgroundColor }]}>
         <View style={[styles.searchBar, { backgroundColor: cardColor, borderColor }]}>

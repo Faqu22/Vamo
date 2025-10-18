@@ -19,6 +19,7 @@ const MAPPING = {
   'person.2.fill': 'people',
   'checkmark.circle.fill': 'check-circle',
   magnifyingglass: 'search',
+  'location.fill': 'my-location',
   // Add more mappings as needed
 };
 

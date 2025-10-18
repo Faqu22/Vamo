@@ -1,14 +1,14 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { PlanItem } from '@/components/ui/plan-item';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
 import { Stack } from 'expo-router';
+import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
+import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
+import { PlanItem } from '@/components/ui/plan-item';
+import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
+
 export default function MapScreen() {
-  const cardColor = useThemeColor({}, 'card');
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   return (
     <View style={styles.container}>
@@ -23,7 +23,12 @@ export default function MapScreen() {
         }}
       >
         {MOCK_PLANS.map((plan) => (
-          <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
+          <Marker
+            key={plan.id}
+            coordinate={plan.coordinate}
+            title={plan.title}
+            onPress={() => setSelectedPlan(plan)}
+          />
         ))}
       </MapView>
       <View style={styles.listContainer}>
@@ -31,7 +36,7 @@ export default function MapScreen() {
           data={MOCK_PLANS}
           renderItem={({ item }) => (
             <View style={styles.planItemContainer}>
-              <PlanItem item={item} />
+              <PlanItem item={item} onPress={() => setSelectedPlan(item)} />
             </View>
           )}
           keyExtractor={(item) => item.id}
@@ -40,6 +45,8 @@ export default function MapScreen() {
           contentContainerStyle={styles.listContent}
         />
       </View>
+
+      {selectedPlan && <PlanDetailModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />}
     </View>
   );
 }
