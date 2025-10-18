@@ -1,9 +1,8 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { Platform } from 'react-native';
 
 import { getToken } from './auth-storage';
 
-const API_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+const API_HOST = '172.20.10.2';
 const API_PORT = 8000;
 
 const API_BASE_URL = `http://${API_HOST}:${API_PORT}/api`;
@@ -30,6 +29,7 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 
 export const fetcherPost = async (url: string, data: any = {}, config: AxiosRequestConfig = {}) => {
   try {
+    console.log("aaa", url, data, config)
     const res = await axiosServices.post(url, data, config);
     return res.data;
   } catch (error) {

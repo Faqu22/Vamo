@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
-import { fetcherPost } from '@/lib/axios';
 import { deleteToken, getToken, saveToken } from '@/lib/auth-storage';
+import { fetcherPost } from '@/lib/axios';
 
 interface AuthContextType {
   login: (credentials: any) => Promise<void>;
@@ -41,7 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (userData: any) => {
+    console.log("1");
     const data = await fetcherPost('/auth/register', userData);
+    console.log("2", data)
     await saveToken(data.access);
     setAuthenticated(true);
     mutate('/profile/me');
