@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Image, Platform } from 'react-native';
 import { useSWRConfig } from 'swr';
 
 import { deleteToken, getToken, saveToken } from '@/lib/auth-storage';
@@ -41,11 +42,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (userData: any) => {
-    console.log("1");
     const data = await fetcherPost('/auth/register', userData);
-    console.log("2", data)
     await saveToken(data.access);
     setAuthenticated(true);
+
+    try {
+      // Subir foto de perfil por defecto
+      const asset = Image.resolveAssetSource(require('../assets/images/foto-perfil.webp'));
+      const uri = asset.uri;
+
+      const formData = new FormData();
+      const fileName = uri.split('/').pop() || 'foto-perfil.webp';
+      const fileType = 'image/webp';
+
+      formData.append('avatar', {
+        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+        name: fileName,
+        type: fileType,
+      } as any);
+
+      await fetcherPost('/profile/me/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    } catch (error) {
+      console.error('Failed to upload default profile picture:', error);
+      // Error no crítico, continuar con el flujo de inicio de sesión
+    }
+
     mutate('/profile/me');
     router.back();
   };
@@ -53,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await deleteToken();
     setAuthenticated(false);
-    mutate('/profile/me', null, false); // Clear profile data
+    mutate('/profile/me', null, false); // Limpiar datos del perfil
   };
 
   return (
