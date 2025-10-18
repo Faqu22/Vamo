@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import * as Location from 'expo-location';
+import { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Keyboard,
@@ -36,7 +37,21 @@ export function Step3Location({ planData, setPlanData }: Props) {
 
   const [searchQuery, setSearchQuery] = useState(planData.location?.name || '');
   const [searchResults, setSearchResults] = useState<LocationSearchResult[]>([]);
+  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const mapRef = useRef<MapView>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      setUserLocation(location);
+    })();
+  }, []);
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -84,6 +99,26 @@ export function Step3Location({ planData, setPlanData }: Props) {
     setSearchResults([]);
   };
 
+  const getInitialRegion = () => {
+    if (planData.location) {
+      return {
+        latitude: planData.location.latitude,
+        longitude: planData.location.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+    }
+    if (userLocation) {
+      return {
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      };
+    }
+    return BUENOS_AIRES_REGION;
+  };
+
   return (
     <ScrollView
       style={styles.container}
@@ -123,8 +158,9 @@ export function Step3Location({ planData, setPlanData }: Props) {
       <MapView
         ref={mapRef}
         style={styles.map}
-        initialRegion={BUENOS_AIRES_REGION}
+        initialRegion={getInitialRegion()}
         onPress={handleMapPress}
+        showsUserLocation
       >
         {planData.location && (
           <Marker
