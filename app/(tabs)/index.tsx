@@ -118,34 +118,36 @@ export default function HomeScreen() {
         </ThemedView>
 
         <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: -34.58,
-              longitude: -58.42,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-            scrollEnabled={false}
-            zoomEnabled={false}
-          >
-            {MOCK_PLANS.map((plan) => (
-              <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
-            ))}
-          </MapView>
-          <Link href="/map" asChild>
-            <Pressable
-              style={[
-                styles.mapButton,
-                { backgroundColor: cardColor, borderWidth: 1, borderColor },
-              ]}
+          <View style={styles.mapWrapper}>
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: -34.58,
+                longitude: -58.42,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
             >
-              <IconSymbol name="checkmark.circle.fill" color="#4CAF50" size={22} />
-              <ThemedText style={[styles.buttonText, { color: textColor }]}>
-                {MOCK_PLANS.length} planes activos cerca
-              </ThemedText>
-            </Pressable>
-          </Link>
+              {MOCK_PLANS.map((plan) => (
+                <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
+              ))}
+            </MapView>
+            <Link href="/map" asChild>
+              <Pressable
+                style={[
+                  styles.mapButton,
+                  { backgroundColor: cardColor, borderWidth: 1, borderColor },
+                ]}
+              >
+                <IconSymbol name="checkmark.circle.fill" color="#4CAF50" size={22} />
+                <ThemedText style={[styles.buttonText, { color: textColor }]}>
+                  {MOCK_PLANS.length} planes activos cerca
+                </ThemedText>
+              </Pressable>
+            </Link>
+          </View>
         </View>
       </ThemedView>
     </TouchableWithoutFeedback>
@@ -164,8 +166,12 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
+  },
+  mapWrapper: {
+    flex: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
   },
   title: {
     textAlign: 'center',
@@ -229,11 +235,12 @@ const styles = StyleSheet.create({
     gap: 10,
     position: 'absolute',
     bottom: 20,
+    left: '5%',
+    width: '90%',
     padding: 15,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '90%',
     // Shadow for iOS
     shadowColor: '#000',
     shadowOffset: {
