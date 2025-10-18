@@ -134,7 +134,12 @@ export default function HomeScreen() {
             ))}
           </MapView>
           <Link href="/map" asChild>
-            <Pressable style={[styles.mapButton, { backgroundColor: cardColor }]}>
+            <Pressable
+              style={[
+                styles.mapButton,
+                { backgroundColor: cardColor, borderWidth: 1, borderColor },
+              ]}
+            >
               <IconSymbol name="checkmark.circle.fill" color="#4CAF50" size={22} />
               <ThemedText style={[styles.buttonText, { color: textColor }]}>
                 {MOCK_PLANS.length} planes activos cerca
