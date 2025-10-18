@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { VamoLogo } from '@/components/ui/vamo-logo';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -18,7 +19,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'VAMO',
+          headerTitle: () => <VamoLogo />,
           tabBarIcon: ({ color, focused }) => <IconSymbol name="house.fill" color={color} />,
         }}
       />
