@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -18,6 +19,7 @@ export default function ProfileScreen() {
   const { user, isLoading, isError } = useProfile();
   const { places, isLoading: isLoadingPlaces } = useFrequentPlaces();
   const { friends, isLoading: isLoadingFriends } = useFriends();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('places');
   const backgroundColor = useThemeColor({}, 'background');
@@ -27,7 +29,8 @@ export default function ProfileScreen() {
 
   const renderContent = () => {
     if (activeTab === 'places') {
-      if (isLoadingPlaces) return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
+      if (isLoadingPlaces)
+        return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
       return (
         <FlatList
           key="places"
@@ -39,7 +42,8 @@ export default function ProfileScreen() {
         />
       );
     }
-    if (isLoadingFriends) return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
+    if (isLoadingFriends)
+      return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
     return (
       <FlatList
         key="friends"
@@ -64,7 +68,27 @@ export default function ProfileScreen() {
   if (isError || !user) {
     return (
       <ThemedView style={styles.centeredContainer}>
-        <ThemedText>Error al cargar el perfil.</ThemedText>
+        <ThemedText type="subtitle" style={{ marginBottom: 20 }}>
+          Únete a Vamo
+        </ThemedText>
+        <ThemedText style={{ textAlign: 'center', marginBottom: 30, paddingHorizontal: 20 }}>
+          Inicia sesión o crea una cuenta para ver tu perfil y empezar a crear planes.
+        </ThemedText>
+        <Pressable
+          style={[styles.button, { backgroundColor: primaryColor }]}
+          onPress={() => router.push('/login')}
+        >
+          <ThemedText style={styles.buttonText}>Iniciar Sesión</ThemedText>
+        </Pressable>
+        <Pressable
+          style={[
+            styles.button,
+            { backgroundColor: cardColor, borderWidth: 1, borderColor: primaryColor },
+          ]}
+          onPress={() => router.push('/register')}
+        >
+          <ThemedText style={[styles.buttonText, { color: primaryColor }]}>Registrarse</ThemedText>
+        </Pressable>
       </ThemedView>
     );
   }
@@ -190,5 +214,17 @@ const styles = StyleSheet.create({
   },
   listLoader: {
     marginTop: 20,
+  },
+  button: {
+    width: '80%',
+    padding: 15,
+    borderRadius: 25,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

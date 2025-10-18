@@ -1,12 +1,14 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
+import { getToken } from './auth-storage';
+
 // En el emulador de Android, localhost se mapea a 10.0.2.2. En el simulador de iOS, es localhost.
 const API_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 const API_PORT = 8000;
 
-// La documentación de la API especifica un prefijo de ruta /v1.
-const BASE_URL = `http://${API_HOST}:${API_PORT}/v1`;
+// Usamos /api como base para que coincida con los ejemplos de cURL proporcionados.
+const BASE_URL = `http://${API_HOST}:${API_PORT}/api`;
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -15,7 +17,19 @@ const api = axios.create({
   },
 });
 
-// TODO: Añadir un interceptor para los tokens de autenticación una vez que se implemente el inicio de sesión.
+// Añadimos un interceptor para incluir el token de autenticación en cada solicitud.
+api.interceptors.request.use(
+  async (config) => {
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Función fetcher para usar con SWR.
