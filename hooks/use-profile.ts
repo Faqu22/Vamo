@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 
-import { fetcher } from '@/lib/api';
+import { fetcher } from '@/lib/axios';
 import { UserProfile } from '@/types/user';
 
 export function useProfile() {

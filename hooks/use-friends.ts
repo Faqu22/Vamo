@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 
-import { fetcher } from '@/lib/api';
+import { fetcher } from '@/lib/axios';
 import { Friend } from '@/types/friend';
 
 interface FriendsResponse {

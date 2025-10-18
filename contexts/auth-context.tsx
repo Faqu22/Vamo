@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
-import api from '@/lib/api';
+import { fetcherPost } from '@/lib/axios';
 import { deleteToken, getToken, saveToken } from '@/lib/auth-storage';
 
 interface AuthContextType {
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (credentials: any) => {
-    const { data } = await api.post('/auth/login', credentials);
+    const data = await fetcherPost('/auth/login', credentials);
     await saveToken(data.access);
     setAuthenticated(true);
     mutate('/profile/me');
@@ -41,10 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (userData: any) => {
-    console.log("aaa");
-    console.log(userData);
-    const { data } = await api.post('/auth/register', userData);
-    console.log("response: ", data)
+    const data = await fetcherPost('/auth/register', userData);
     await saveToken(data.access);
     setAuthenticated(true);
     mutate('/profile/me');

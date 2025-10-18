@@ -20,7 +20,7 @@ import { ThemedView } from '@/components/themed-view';
 import { InterestPill } from '@/components/ui/interest-pill';
 import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import api from '@/lib/api';
+import { fetcherPatch, fetcherPost } from '@/lib/axios';
 import { UserProfile } from '../types/user';
 
 export default function EditProfileScreen() {
@@ -58,7 +58,7 @@ export default function EditProfileScreen() {
     try {
       // Actualización optimista: actualiza la UI localmente primero
       mutate(editedUser, false);
-      await api.patch('/profile/me', editedUser);
+      await fetcherPatch('/profile/me', editedUser);
       // Vuelve a validar los datos con el servidor
       mutate();
       router.back();
@@ -97,14 +97,14 @@ export default function EditProfileScreen() {
       } as any);
 
       try {
-        const response = await api.post('/profile/me/avatar', formData, {
+        const response = await fetcherPost('/profile/me/avatar', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
-        if (response.data.profilePictureUrl) {
-          handleInputChange('profilePictureUrl', response.data.profilePictureUrl);
+        if (response.profilePictureUrl) {
+          handleInputChange('profilePictureUrl', response.profilePictureUrl);
           if (user) {
-            mutate({ ...user, profilePictureUrl: response.data.profilePictureUrl }, false);
+            mutate({ ...user, profilePictureUrl: response.profilePictureUrl }, false);
           }
         }
       } catch (error) {
