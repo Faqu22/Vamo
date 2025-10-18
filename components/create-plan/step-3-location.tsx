@@ -39,6 +39,7 @@ export function Step3Location({ planData, setPlanData }: Props) {
   const [searchResults, setSearchResults] = useState<LocationSearchResult[]>([]);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const mapRef = useRef<MapView>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     (async () => {
@@ -121,6 +122,7 @@ export function Step3Location({ planData, setPlanData }: Props) {
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       style={styles.container}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1 }}
@@ -183,6 +185,11 @@ export function Step3Location({ planData, setPlanData }: Props) {
           { color: textColor, borderColor, backgroundColor: cardColor },
         ]}
         multiline
+        onFocus={() => {
+          setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+          }, 100);
+        }}
       />
     </ScrollView>
   );
