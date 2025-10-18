@@ -1,22 +1,11 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { PlanItem } from '@/components/ui/plan-item';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
 import { Stack } from 'expo-router';
 import { FlatList, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-
-function PlanItem({ item }: { item: Plan }) {
-  const cardColor = useThemeColor({}, 'card');
-  const borderColor = useThemeColor({}, 'border');
-
-  return (
-    <ThemedView style={[styles.planItem, { backgroundColor: cardColor, borderColor }]}>
-      <ThemedText type="defaultSemiBold">{item.title}</ThemedText>
-      <ThemedText>{item.description}</ThemedText>
-    </ThemedView>
-  );
-}
 
 export default function MapScreen() {
   const cardColor = useThemeColor({}, 'card');
@@ -40,7 +29,11 @@ export default function MapScreen() {
       <View style={styles.listContainer}>
         <FlatList
           data={MOCK_PLANS}
-          renderItem={({ item }) => <PlanItem item={item} />}
+          renderItem={({ item }) => (
+            <View style={styles.planItemContainer}>
+              <PlanItem item={item} />
+            </View>
+          )}
           keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -68,11 +61,8 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 10,
   },
-  planItem: {
-    padding: 15,
-    borderRadius: 12,
-    marginHorizontal: 5,
+  planItemContainer: {
     width: 250,
-    borderWidth: 1,
+    marginHorizontal: 5,
   },
 });

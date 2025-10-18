@@ -1,0 +1,26 @@
+import { StyleSheet } from 'react-native';
+
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Plan } from '@/mocksdata/plans';
+
+export function PlanItem({ item }: { item: Plan }) {
+  const cardColor = useThemeColor({}, 'card');
+  const borderColor = useThemeColor({}, 'border');
+
+  return (
+    <ThemedView style={[styles.planItem, { backgroundColor: cardColor, borderColor }]}>
+      <ThemedText type="defaultSemiBold">{item.title}</ThemedText>
+      <ThemedText>{item.description}</ThemedText>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  planItem: {
+    padding: 15,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+});

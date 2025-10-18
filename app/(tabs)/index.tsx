@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  FlatList,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
@@ -7,6 +15,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { FilterButton } from '@/components/ui/filter-button';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { PlanItem } from '@/components/ui/plan-item';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
 import { MOCK_PLANS } from '@/mocksdata/plans';
@@ -84,19 +93,37 @@ export default function HomeScreen() {
         </Animated.View>
       </View>
 
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: -34.58,
-          longitude: -58.42,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-      >
-        {MOCK_PLANS.map((plan) => (
-          <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
-        ))}
-      </MapView>
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: -34.58,
+            longitude: -58.42,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        >
+          {MOCK_PLANS.map((plan) => (
+            <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
+          ))}
+        </MapView>
+      </View>
+
+      <View style={styles.plansContainer}>
+        <ThemedText type="subtitle" style={styles.plansTitle}>
+          Planes Cercanos
+        </ThemedText>
+        <FlatList
+          data={MOCK_PLANS}
+          renderItem={({ item }) => (
+            <View style={styles.planItemWrapper}>
+              <PlanItem item={item} />
+            </View>
+          )}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
     </ThemedView>
   );
 }
@@ -117,7 +144,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     // Elevation for Android
     elevation: 3,
-    zIndex: 10, // Ensure it's above the map
   },
   searchBar: {
     flexDirection: 'row',
@@ -135,7 +161,24 @@ const styles = StyleSheet.create({
   filtersContainer: {
     paddingVertical: 10,
   },
+  mapContainer: {
+    flex: 2,
+    marginHorizontal: 10,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
   map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  plansContainer: {
     flex: 1,
+    paddingHorizontal: 10,
+  },
+  plansTitle: {
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
+  planItemWrapper: {
+    marginBottom: 10,
   },
 });
