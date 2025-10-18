@@ -1,6 +1,6 @@
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { OptionButton } from '@/components/ui/option-button';
 import { ThemedText } from '@/components/themed-text';
@@ -128,7 +128,7 @@ export function Step2Time({ planData, setPlanData }: Props) {
           value={new Date()}
           mode="time"
           is24Hour={true}
-          display="default"
+          display={Platform.OS === 'ios' ? 'spinner' : 'clock'}
           onChange={onTimeChange}
         />
       )}
