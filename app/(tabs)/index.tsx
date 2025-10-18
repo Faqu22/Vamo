@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -20,6 +21,22 @@ export default function HomeScreen() {
   const [isFiltersVisible, setFiltersVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
+  const animatedHeight = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      height: animatedHeight.value,
+      opacity: withTiming(animatedHeight.value > 0 ? 1 : 0, { duration: 150 }),
+      overflow: 'hidden',
+    };
+  });
+
+  useEffect(() => {
+    animatedHeight.value = withTiming(isFiltersVisible ? 100 : 0, {
+      duration: 300,
+    });
+  }, [isFiltersVisible]);
+
   const toggleFilter = (interest: string) => {
     setActiveFilters((prev) =>
       prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]
@@ -38,34 +55,33 @@ export default function HomeScreen() {
             onFocus={() => setFiltersVisible(true)}
           />
         </View>
-        {isFiltersVisible && (
-          <>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filtersContainer}
-            >
-              {INTERESTS.map((interest) => (
-                <FilterButton
-                  key={interest}
-                  label={interest}
-                  isActive={activeFilters.includes(interest)}
-                  onPress={() => toggleFilter(interest)}
-                />
-              ))}
-            </ScrollView>
-            <Pressable
-              onPress={() => {
-                setFiltersVisible(false);
-                Keyboard.dismiss();
-              }}
-            >
-              <ThemedText style={{ textAlign: 'center', padding: 8, color: iconColor }}>
-                Cerrar
-              </ThemedText>
-            </Pressable>
-          </>
-        )}
+
+        <Animated.View style={animatedStyle}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filtersContainer}
+          >
+            {INTERESTS.map((interest) => (
+              <FilterButton
+                key={interest}
+                label={interest}
+                isActive={activeFilters.includes(interest)}
+                onPress={() => toggleFilter(interest)}
+              />
+            ))}
+          </ScrollView>
+          <Pressable
+            onPress={() => {
+              setFiltersVisible(false);
+              Keyboard.dismiss();
+            }}
+          >
+            <ThemedText style={{ textAlign: 'center', padding: 8, color: iconColor }}>
+              Cerrar
+            </ThemedText>
+          </Pressable>
+        </Animated.View>
       </View>
 
       <MapView
