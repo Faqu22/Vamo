@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -30,6 +31,9 @@ export default function EditProfileScreen() {
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
   const primaryColor = useThemeColor({}, 'primary');
+
+  const headerHeight = useHeaderHeight();
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight : 0;
 
   const handleInputChange = (field: keyof UserProfile, value: string | number | string[]) => {
     setEditedUser((prev: UserProfile) => ({
@@ -92,8 +96,13 @@ export default function EditProfileScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
-        <ScrollView ref={scrollViewRef} contentContainerStyle={styles.content}>
+        <ScrollView
+          ref={scrollViewRef}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
           <Pressable style={styles.header} onPress={handlePickImage}>
             <Image source={{ uri: editedUser.profilePictureUrl }} style={styles.profilePicture} />
             <ThemedText style={{ color: primaryColor }}>Cambiar foto de perfil</ThemedText>
@@ -185,7 +194,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   header: {
     alignItems: 'center',
