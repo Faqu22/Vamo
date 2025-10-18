@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { Pressable } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { VamoLogo } from '@/components/ui/vamo-logo';
@@ -35,6 +36,11 @@ export default function TabLayout() {
         options={{
           title: 'Perfil',
           tabBarIcon: ({ color, focused }) => <IconSymbol name="person.fill" color={color} />,
+          headerRight: () => (
+            <Pressable style={{ marginRight: 15 }}>
+              <IconSymbol name="square.and.pencil" color={Colors[colorScheme].primary} />
+            </Pressable>
+          ),
         }}
       />
     </Tabs>

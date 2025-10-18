@@ -20,6 +20,7 @@ const MAPPING = {
   'checkmark.circle.fill': 'check-circle',
   magnifyingglass: 'search',
   'location.fill': 'my-location',
+  'square.and.pencil': 'edit',
   // Add more mappings as needed
 };
 
