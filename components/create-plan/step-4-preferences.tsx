@@ -5,6 +5,7 @@ import { OptionButton } from '@/components/ui/option-button';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { NewPlan } from '@/types/new-plan';
+import { Select } from '../ui/select';
 
 interface Props {
   planData: Partial<NewPlan>;
@@ -43,7 +44,11 @@ export function Step4Preferences({ planData, setPlanData }: Props) {
   };
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={styles.container}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={styles.contentContainer}
+    >
       <ThemedText type="title">Preferencias del plan</ThemedText>
 
       <ThemedText style={styles.label}>Cupo (incluyéndote)</ThemedText>
@@ -57,17 +62,11 @@ export function Step4Preferences({ planData, setPlanData }: Props) {
       />
 
       <ThemedText style={styles.label}>Preferencia de género</ThemedText>
-      <View style={styles.optionsContainer}>
-        {GENDER_OPTIONS.map((item) => (
-          <OptionButton
-            key={item.value}
-            label={item.label}
-            isActive={planData.genderPreference === item.value}
-            onPress={() => setPlanData((prev) => ({ ...prev, genderPreference: item.value }))}
-            fullWidth
-          />
-        ))}
-      </View>
+      <Select
+        options={GENDER_OPTIONS}
+        selectedValue={planData.genderPreference!}
+        onValueChange={(value) => setPlanData((prev) => ({ ...prev, genderPreference: value }))}
+      />
 
       <ThemedText style={styles.label}>Rango de edad</ThemedText>
       <View style={styles.ageRangeContainer}>
@@ -123,6 +122,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+  },
+  contentContainer: {
+    paddingBottom: 40,
   },
   label: {
     fontWeight: '600',
