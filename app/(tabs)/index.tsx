@@ -14,6 +14,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import MapView, { Marker } from 'react-native-maps';
 
 type GenderFilter = 'male' | 'female' | 'other' | null;
@@ -49,6 +50,18 @@ export default function HomeScreen() {
     return 'Sexo';
   };
 
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    return {
+      height: withTiming(isInputFocused ? 105 : 0, {
+        duration: 300,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      }),
+      opacity: withTiming(isInputFocused ? 1 : 0, {
+        duration: 250,
+      }),
+    };
+  });
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ThemedView style={styles.container}>
@@ -65,43 +78,37 @@ export default function HomeScreen() {
             onBlur={() => setIsInputFocused(false)}
           />
 
-          {isInputFocused && (
-            <>
-              <View style={styles.filtersContainer}>
-                <Pressable
-                  style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}
+          <Animated.View style={[styles.animatedWrapper, animatedContainerStyle]}>
+            <View style={styles.filtersContainer}>
+              <Pressable style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}>
+                <ThemedText style={styles.filterButtonText}>Edad</ThemedText>
+              </Pressable>
+              <Pressable
+                onPress={handleGenderFilterToggle}
+                style={[
+                  styles.filterButton,
+                  { backgroundColor: cardColor, borderColor },
+                  genderFilter ? { backgroundColor: primaryColor, borderColor: primaryColor } : {},
+                ]}
+              >
+                <ThemedText
+                  style={[styles.filterButtonText, genderFilter ? { color: '#fff' } : {}]}
                 >
-                  <ThemedText style={styles.filterButtonText}>Edad</ThemedText>
-                </Pressable>
-                <Pressable
-                  onPress={handleGenderFilterToggle}
-                  style={[
-                    styles.filterButton,
-                    { backgroundColor: cardColor, borderColor },
-                    genderFilter ? { backgroundColor: primaryColor, borderColor: primaryColor } : {},
-                  ]}
-                >
-                  <ThemedText
-                    style={[styles.filterButtonText, genderFilter ? { color: '#fff' } : {}]}
-                  >
-                    {getGenderFilterText()}
-                  </ThemedText>
-                </Pressable>
-                <Pressable
-                  style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}
-                >
-                  <ThemedText style={styles.filterButtonText}>Intereses</ThemedText>
-                </Pressable>
-              </View>
-
-              <View style={[styles.counterContainer, { backgroundColor: cardColor, borderColor }]}>
-                <IconSymbol name="person.2.fill" color={iconColor} size={20} />
-                <ThemedText style={styles.counterText}>
-                  {filteredUsers.length} personas activas ahora
+                  {getGenderFilterText()}
                 </ThemedText>
-              </View>
-            </>
-          )}
+              </Pressable>
+              <Pressable style={[styles.filterButton, { backgroundColor: cardColor, borderColor }]}>
+                <ThemedText style={styles.filterButtonText}>Intereses</ThemedText>
+              </Pressable>
+            </View>
+
+            <View style={[styles.counterContainer, { backgroundColor: cardColor, borderColor }]}>
+              <IconSymbol name="person.2.fill" color={iconColor} size={20} />
+              <ThemedText style={styles.counterText}>
+                {filteredUsers.length} personas activas ahora
+              </ThemedText>
+            </View>
+          </Animated.View>
 
           <Pressable style={[styles.mainButton, { backgroundColor: cardColor }]}>
             <ThemedText style={[styles.buttonText, { color: textColor }]}>
@@ -166,6 +173,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 16,
+  },
+  animatedWrapper: {
+    gap: 15,
+    overflow: 'hidden',
   },
   filtersContainer: {
     flexDirection: 'row',
