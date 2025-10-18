@@ -7,9 +7,16 @@ import {
   StyleSheet,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import MapView, { Marker } from 'react-native-maps';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -20,17 +27,55 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
 import { MOCK_PLANS } from '@/mocksdata/plans';
 
+const BOTTOM_SHEET_TOP_OFFSET = 100; // Espacio en la parte superior cuando está expandido
+
 export default function HomeScreen() {
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
   const iconColor = useThemeColor({}, 'icon');
   const backgroundColor = useThemeColor({}, 'background');
+  const grabberColor = useThemeColor({ light: '#ccc', dark: '#555' }, 'icon');
 
   const [isFiltersVisible, setFiltersVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const animatedHeight = useSharedValue(0);
+
+  // --- Lógica del panel deslizable ---
+  const { height: SCREEN_HEIGHT } = useWindowDimensions();
+  const COLLAPSED_HEIGHT = SCREEN_HEIGHT / 3;
+  const EXPANDED_TRANSLATE_Y = -SCREEN_HEIGHT + BOTTOM_SHEET_TOP_OFFSET;
+  const COLLAPSED_TRANSLATE_Y = -COLLAPSED_HEIGHT;
+
+  const translateY = useSharedValue(COLLAPSED_TRANSLATE_Y);
+  const context = useSharedValue({ y: 0 });
+
+  const gesture = Gesture.Pan()
+    .onStart(() => {
+      context.value = { y: translateY.value };
+    })
+    .onUpdate((event) => {
+      translateY.value = context.value.y + event.translationY;
+      // Limitar el arrastre para que no se salga de los límites
+      translateY.value = Math.max(translateY.value, EXPANDED_TRANSLATE_Y);
+      translateY.value = Math.min(translateY.value, COLLAPSED_TRANSLATE_Y);
+    })
+    .onEnd(() => {
+      // Animar al punto más cercano (expandido o contraído)
+      if (translateY.value < -SCREEN_HEIGHT / 2) {
+        translateY.value = withSpring(EXPANDED_TRANSLATE_Y, { damping: 15 });
+      } else {
+        translateY.value = withSpring(COLLAPSED_TRANSLATE_Y, { damping: 15 });
+      }
+    });
+
+  const bottomSheetStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    };
+  });
+  // --- Fin de la lógica del panel ---
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -54,6 +99,20 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: -34.58,
+          longitude: -58.42,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      >
+        {MOCK_PLANS.map((plan) => (
+          <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
+        ))}
+      </MapView>
+
       <View style={[styles.searchSection, { backgroundColor }]}>
         <View style={[styles.searchBar, { backgroundColor: cardColor, borderColor }]}>
           <IconSymbol name="magnifyingglass" color={iconColor} size={20} />
@@ -93,37 +152,31 @@ export default function HomeScreen() {
         </Animated.View>
       </View>
 
-      <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: -34.58,
-            longitude: -58.42,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
+      <GestureDetector gesture={gesture}>
+        <Animated.View
+          style={[
+            styles.bottomSheetContainer,
+            { backgroundColor: cardColor, top: SCREEN_HEIGHT },
+            bottomSheetStyle,
+          ]}
         >
-          {MOCK_PLANS.map((plan) => (
-            <Marker key={plan.id} coordinate={plan.coordinate} title={plan.title} />
-          ))}
-        </MapView>
-      </View>
-
-      <View style={styles.plansContainer}>
-        <ThemedText type="subtitle" style={styles.plansTitle}>
-          Planes Cercanos
-        </ThemedText>
-        <FlatList
-          data={MOCK_PLANS}
-          renderItem={({ item }) => (
-            <View style={styles.planItemWrapper}>
-              <PlanItem item={item} />
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+          <View style={[styles.line, { backgroundColor: grabberColor }]} />
+          <ThemedText type="subtitle" style={styles.plansTitle}>
+            Planes Cercanos
+          </ThemedText>
+          <FlatList
+            data={MOCK_PLANS}
+            renderItem={({ item }) => (
+              <View style={styles.planItemWrapper}>
+                <PlanItem item={item} />
+              </View>
+            )}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 50 }}
+          />
+        </Animated.View>
+      </GestureDetector>
     </ThemedView>
   );
 }
@@ -132,8 +185,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
   searchSection: {
     padding: 10,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
     // Shadow for iOS
     shadowColor: '#000',
     shadowOffset: {
@@ -161,24 +222,36 @@ const styles = StyleSheet.create({
   filtersContainer: {
     paddingVertical: 10,
   },
-  mapContainer: {
-    flex: 2,
-    marginHorizontal: 10,
-    borderRadius: 20,
-    overflow: 'hidden',
+  // Bottom Sheet styles
+  bottomSheetContainer: {
+    height: '100%',
+    width: '100%',
+    position: 'absolute',
+    borderRadius: 25,
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -3,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // Elevation for Android
+    elevation: 5,
   },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  plansContainer: {
-    flex: 1,
-    paddingHorizontal: 10,
+  line: {
+    width: 75,
+    height: 4,
+    alignSelf: 'center',
+    marginVertical: 15,
+    borderRadius: 2,
   },
   plansTitle: {
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
   },
   planItemWrapper: {
     marginBottom: 10,
+    marginHorizontal: 20,
   },
 });
