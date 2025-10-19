@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 import { getToken } from './auth-storage';
 
-const API_HOST = '172.20.10.2';
+const API_HOST = '172.18.144.1';
 const API_PORT = 8000;
 
 const API_BASE_URL = `http://${API_HOST}:${API_PORT}/api`;
