@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     maxWidth: '75%',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 8, // Reducido el border radius para un aspecto más 'chato'
+    borderRadius: 4, // Ajustado a un valor más pequeño para un aspecto más 'chato'
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
