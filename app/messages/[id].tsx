@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSWRConfig } from 'swr';
+import { useHeaderHeight } from '@react-navigation/elements'; // Importar useHeaderHeight
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -27,6 +28,9 @@ export default function ConversationDetailScreen() {
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
   const iconColor = useThemeColor({}, 'icon');
+
+  const headerHeight = useHeaderHeight(); // Obtener la altura del header
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight : 0; // Ajustar offset para iOS
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() || isSending) return;
@@ -73,7 +77,7 @@ export default function ConversationDetailScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // Adjust offset for header
+        keyboardVerticalOffset={keyboardVerticalOffset} // Usamos el offset dinámico
       >
         <FlatList
           data={conversation.messages}
