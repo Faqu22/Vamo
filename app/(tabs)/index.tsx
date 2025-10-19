@@ -178,13 +178,13 @@ export default function HomeScreen() {
       <FloatingActionButton
         iconName="location.fill"
         onPress={centerOnUserLocation}
-        bottomPosition={COLLAPSED_HEIGHT + 20} {/* Ajustado para estar sobre el bottom sheet colapsado */}
+        bottomPosition={TAB_BAR_HEIGHT + 20} {/* Ajustado para estar sobre la barra de navegación */}
         side="left"
       />
       <FloatingActionButton
         iconName="plus"
         onPress={() => router.push('/(create-plan)/step1')}
-        bottomPosition={COLLAPSED_HEIGHT + 20} {/* Ajustado para estar sobre el bottom sheet colapsado */}
+        bottomPosition={TAB_BAR_HEIGHT + 20} {/* Ajustado para estar sobre la barra de navegación */}
         side="right"
       />
 
