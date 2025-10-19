@@ -1,13 +1,13 @@
+import { useHeaderHeight } from '@react-navigation/elements';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Importar useSafeAreaInsets
 import { useSWRConfig } from 'swr';
-import { useHeaderHeight } from '@react-navigation/elements';
 
+import { MessageItem } from '@/components/messages/message-item';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MessageItem } from '@/components/messages/message-item';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useConversationDetails } from '@/hooks/use-conversation-details';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -38,7 +38,7 @@ export default function ConversationDetailScreen() {
 
     setIsSending(true);
     try {
-      await fetcherPost(`/messaging/${conversationId}/messages`, { text: messageInput });
+      await fetcherPost(`/messaging/${conversationId}/messages`, { content: messageInput });
       setMessageInput('');
       mutate(`/messaging/${conversationId}`);
     } catch (error) {
@@ -69,7 +69,6 @@ export default function ConversationDetailScreen() {
       <Stack.Screen
         options={{
           title: conversation.name,
-          headerBackTitleVisible: false,
         }}
       />
       <KeyboardAvoidingView

@@ -19,7 +19,7 @@ export interface Sender {
 
 export interface Message {
   id: string;
-  text: string;
+  content: string;
   timestamp: string; // ISO string
   sender: Sender;
 }

@@ -4,9 +4,9 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useProfile } from '@/hooks/use-profile'; // To determine if the message is from the current user
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Message } from '@/types/message';
-import { useProfile } from '@/hooks/use-profile'; // To determine if the message is from the current user
 
 interface MessageItemProps {
   message: Message;
@@ -40,7 +40,7 @@ export function MessageItem({ message }: MessageItemProps) {
             {message.sender.name}
           </ThemedText>
         )}
-        <ThemedText style={{ color: isMyMessage ? '#fff' : undefined }}>{message.text}</ThemedText>
+        <ThemedText style={{ color: isMyMessage ? '#fff' : undefined }}>{message.content}</ThemedText>
         <ThemedText style={[styles.timestamp, { color: isMyMessage ? 'rgba(255,255,255,0.7)' : secondaryTextColor }]}>
           {formatTimestamp(message.timestamp)}
         </ThemedText>
