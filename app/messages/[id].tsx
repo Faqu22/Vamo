@@ -1,9 +1,9 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Importar useSafeAreaInsets
 import { useSWRConfig } from 'swr';
-import { useHeaderHeight } from '@react-navigation/elements'; // Importar useHeaderHeight
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -11,13 +11,13 @@ import { MessageItem } from '@/components/messages/message-item';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useConversationDetails } from '@/hooks/use-conversation-details';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { fetcherPost } from '@/lib/axios'; // Import fetcherPost
+import { fetcherPost } from '@/lib/axios';
 
 export default function ConversationDetailScreen() {
   const { id } = useLocalSearchParams();
   const conversationId = typeof id === 'string' ? id : '';
   const router = useRouter();
-  const { mutate } = useSWRConfig(); // Para revalidar los mensajes después de enviar
+  const { mutate } = useSWRConfig();
 
   const { conversation, isLoading, isError } = useConversationDetails(conversationId);
   const [messageInput, setMessageInput] = useState('');
@@ -29,22 +29,20 @@ export default function ConversationDetailScreen() {
   const borderColor = useThemeColor({}, 'border');
   const iconColor = useThemeColor({}, 'icon');
 
-  const headerHeight = useHeaderHeight(); // Obtener la altura del header
-  const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight : 0; // Ajustar offset para iOS
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets(); // Obtener los insets de área segura
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight : 0;
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() || isSending) return;
 
     setIsSending(true);
     try {
-      // El endpoint es /api/messaging/{conversation_id}/messages
       await fetcherPost(`/messaging/${conversationId}/messages`, { text: messageInput });
       setMessageInput('');
-      // Revalidar los detalles de la conversación para mostrar el nuevo mensaje
       mutate(`/messaging/${conversationId}`);
     } catch (error) {
       console.error('Error sending message:', error);
-      // Aquí podrías mostrar un toast o alerta al usuario
     } finally {
       setIsSending(false);
     }
@@ -71,23 +69,23 @@ export default function ConversationDetailScreen() {
       <Stack.Screen
         options={{
           title: conversation.name,
-          // headerBackTitleVisible: false, // Eliminado: esta propiedad ya no es válida
+          headerBackTitleVisible: false,
         }}
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
-        keyboardVerticalOffset={keyboardVerticalOffset} // Usamos el offset dinámico
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <FlatList
           data={conversation.messages}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <MessageItem message={item} />}
           contentContainerStyle={styles.messageList}
-          inverted // To show latest messages at the bottom
+          inverted
         />
 
-        <View style={[styles.inputContainer, { backgroundColor: cardColor, borderColor }]}>
+        <View style={[styles.inputContainer, { backgroundColor: cardColor, borderColor, paddingBottom: insets.bottom }]}>
           <TextInput
             style={[styles.messageInput, { color: textColor }]}
             placeholder="Escribe un mensaje..."
@@ -124,8 +122,8 @@ const styles = StyleSheet.create({
   messageList: {
     paddingVertical: 10,
     flexGrow: 1,
-    justifyContent: 'flex-end', // Align content to the bottom
-    paddingBottom: 80, // Increased paddingBottom to ensure last message is visible above input
+    justifyContent: 'flex-end',
+    paddingBottom: 80,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -143,6 +141,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginRight: 10,
     fontSize: 16,
-    backgroundColor: 'transparent', // Let parent control background
+    backgroundColor: 'transparent',
   },
 });
