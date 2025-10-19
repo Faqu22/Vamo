@@ -76,9 +76,9 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '75%',
-    paddingHorizontal: 15, // Increased horizontal padding
-    paddingVertical: 10,   // Kept vertical padding
-    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 8, // Reducido el border radius para un aspecto más 'chato'
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
