@@ -31,9 +31,11 @@ const handleError = (error: unknown) => {
       axiosError.response?.data?.detail ||
       axiosError.response?.data?.message ||
       'Ocurrió un error inesperado. Por favor, intenta de nuevo.';
+    
     console.error(
       `[Axios Error]: ${errorMessage} (Status: ${axiosError.response?.status})`,
-      axiosError.toJSON()
+      'Response Data:', axiosError.response?.data,
+      'Request Config:', axiosError.config
     );
     throw new Error(errorMessage);
   } else {

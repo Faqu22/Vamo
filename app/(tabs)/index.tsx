@@ -32,7 +32,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
 import { usePlans } from '@/hooks/use-plans';
-import { useThemeColor } => '@/hooks/use-theme-color';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { fetcherPost } from '@/lib/axios'; // Import fetcherPost
 import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
