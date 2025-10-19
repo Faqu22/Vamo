@@ -1,13 +1,4 @@
-export interface Plan {
-  id: string;
-  title: string;
-  description: string;
-  category: 'sport' | 'social' | 'culture';
-  coordinate: {
-    latitude: number;
-    longitude: number;
-  };
-}
+import { Plan } from '@/types/plan';
 
 export const MOCK_PLANS: Plan[] = [
   {

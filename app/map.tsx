@@ -5,7 +5,8 @@ import MapView, { Marker } from 'react-native-maps';
 
 import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { PlanItem } from '@/components/ui/plan-item';
-import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
+import { MOCK_PLANS } from '@/mocksdata/plans';
+import { Plan } from '@/types/plan';
 
 export default function MapScreen() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);

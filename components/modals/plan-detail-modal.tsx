@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { Plan } from '@/mocksdata/plans';
+import { Plan } from '@/types/plan';
 
 interface PlanDetailModalProps {
   plan: Plan;

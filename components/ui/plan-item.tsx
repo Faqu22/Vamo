@@ -3,7 +3,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { Plan } from '@/mocksdata/plans';
+import { Plan } from '@/types/plan';
 
 interface PlanItemProps {
   item: Plan;
