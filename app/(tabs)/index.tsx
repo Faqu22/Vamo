@@ -35,6 +35,7 @@ import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
 
 const BOTTOM_SHEET_TOP_OFFSET = 100;
+const TAB_BAR_HEIGHT = 80; // Altura aproximada de la barra de navegación inferior
 
 const PLAN_ICONS: Record<string, IconSymbolName> = {
   sport: 'person.2.fill',
@@ -194,13 +195,13 @@ export default function HomeScreen() {
       <FloatingActionButton
         iconName="location.fill"
         onPress={centerOnUserLocation}
-        bottomPosition={COLLAPSED_HEIGHT + 20}
+        bottomPosition={TAB_BAR_HEIGHT + 20}
         side="left"
       />
       <FloatingActionButton
         iconName="plus"
         onPress={() => router.push('/(create-plan)/step1')}
-        bottomPosition={COLLAPSED_HEIGHT + 20}
+        bottomPosition={TAB_BAR_HEIGHT + 20}
         side="right"
       />
 
@@ -249,7 +250,7 @@ export default function HomeScreen() {
         <Animated.View
           style={[
             styles.bottomSheetContainer,
-            { backgroundColor: cardColor, top: SCREEN_HEIGHT },
+            { backgroundColor: cardColor, top: SCREEN_HEIGHT, zIndex: 20 },
             bottomSheetStyle,
           ]}
         >
