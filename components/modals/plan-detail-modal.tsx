@@ -9,6 +9,8 @@ import { Plan } from '@/types/plan';
 interface PlanDetailModalProps {
   plan: Plan;
   onClose: () => void;
+  onJoinPlan: (planId: string) => void; // New prop for joining a plan
+  isJoining?: boolean; // New prop for loading state
 }
 
 // Helper function to format time details
@@ -52,7 +54,7 @@ const formatParticipants = (plan: Plan) => {
   return participantString;
 };
 
-export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
+export function PlanDetailModal({ plan, onClose, onJoinPlan, isJoining = false }: PlanDetailModalProps) {
   const cardColor = useThemeColor({}, 'card');
   const primaryColor = useThemeColor({}, 'primary');
   const iconColor = useThemeColor({}, 'icon');
@@ -105,8 +107,16 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
               </ThemedView>
             )}
 
-            <Pressable style={[styles.joinButton, { backgroundColor: primaryColor }]}>
-              <ThemedText style={styles.joinButtonText}>Unirme al Plan</ThemedText>
+            <Pressable
+              style={[styles.joinButton, { backgroundColor: primaryColor }]}
+              onPress={() => onJoinPlan(plan.id)}
+              disabled={isJoining}
+            >
+              {isJoining ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <ThemedText style={styles.joinButtonText}>Unirme al Plan</ThemedText>
+              )}
             </Pressable>
           </ThemedView>
         </Pressable>

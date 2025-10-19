@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert, // Import Alert for user feedback
   FlatList,
   Keyboard,
   Pressable,
@@ -20,6 +21,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { useSWRConfig } from 'swr'; // Import useSWRConfig for revalidation
 
 import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { ThemedText } from '@/components/themed-text';
@@ -31,6 +33,7 @@ import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
 import { usePlans } from '@/hooks/use-plans';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { fetcherPost } from '@/lib/axios'; // Import fetcherPost
 import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
 
@@ -58,6 +61,9 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+  const [isJoiningPlan, setIsJoiningPlan] = useState(false); // New state for join plan loading
+
+  const { mutate } = useSWRConfig(); // Initialize useSWRConfig
 
   const { plans, isLoading: isLoadingPlans } = usePlans({
     latitude: userLocation?.coords.latitude,
@@ -146,6 +152,21 @@ export default function HomeScreen() {
         },
         1000
       );
+    }
+  };
+
+  const handleJoinPlan = async (planId: string) => {
+    setIsJoiningPlan(true);
+    try {
+      await fetcherPost(`/plans/${planId}/join`);
+      Alert.alert('¡Éxito!', 'Te has unido al plan correctamente.');
+      setSelectedPlan(null); // Close the modal
+      mutate('/plans'); // Revalidate plans to update participant count or remove from list if full
+    } catch (error: any) {
+      console.error('Failed to join plan:', error);
+      Alert.alert('Error', error.message || 'No se pudo unir al plan. Inténtalo de nuevo.');
+    } finally {
+      setIsJoiningPlan(false);
     }
   };
 
@@ -277,7 +298,12 @@ export default function HomeScreen() {
       </GestureDetector>
 
       {selectedPlan && (
-        <PlanDetailModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
+        <PlanDetailModal
+          plan={selectedPlan}
+          onClose={() => setSelectedPlan(null)}
+          onJoinPlan={handleJoinPlan}
+          isJoining={isJoiningPlan}
+        />
       )}
     </ThemedView>
   );
