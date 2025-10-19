@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuth } from '@/contexts/auth-context';
+import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { fetcherPost } from '@/lib/axios';
 import { Plan } from '@/types/plan';
@@ -60,6 +61,7 @@ const formatParticipants = (plan: Plan) => {
 };
 
 export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
+  const { user } = useProfile();
   const router = useRouter();
   const { authenticated } = useAuth();
   const { mutate } = useSWRConfig();
@@ -73,7 +75,7 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
   const flexibleTagBgColor = useThemeColor({ light: '#e9f6fc', dark: '#1c2a3a' }, 'background');
 
   const handleJoinPlan = async () => {
-    if (!authenticated) {
+    if (!authenticated || !user) {
       Alert.alert(
         'Registro Requerido',
         'Para unirte a un plan, necesitás registrarte o iniciar sesión.',

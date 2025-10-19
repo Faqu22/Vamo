@@ -32,6 +32,7 @@ import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
 import { useAuth } from '@/contexts/auth-context';
 import { usePlans } from '@/hooks/use-plans';
+import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
@@ -48,6 +49,8 @@ const PLAN_ICONS: Record<string, IconSymbolName> = {
 export default function HomeScreen() {
   const router = useRouter();
   const { authenticated } = useAuth();
+  const { user } = useProfile();
+  
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
@@ -153,7 +156,7 @@ export default function HomeScreen() {
   };
 
   const handleCreatePlanPress = () => {
-    if (authenticated) {
+    if (authenticated && user) {
       router.push('/(create-plan)/step1');
     } else {
       Alert.alert(
