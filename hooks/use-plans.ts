@@ -10,29 +10,55 @@ interface PlansResponse {
 interface UsePlansParams {
   latitude?: number | null;
   longitude?: number | null;
-  interests?: string[];
   activity?: string;
   radius?: number;
+  ageMin?: number;
+  ageMax?: number;
+  gender?: 'any' | 'male' | 'female';
+  timeOfDay?: 'any' | 'morning' | 'afternoon' | 'night';
 }
 
 export function usePlans({
   latitude,
   longitude,
-  interests,
   activity,
   radius = 20,
+  ageMin,
+  ageMax,
+  gender,
+  timeOfDay,
 }: UsePlansParams) {
-  const radiusQuery = `&radius_km=${radius}`;
-
-  // Solo obtener si tenemos una ubicación
   const shouldFetch = latitude && longitude;
 
-  const key = shouldFetch
-    ? `/plans/nearby?latitude=${latitude}&longitude=${longitude}${radiusQuery}`
-    : null;
+  let key = null;
+  if (shouldFetch) {
+    const params = new URLSearchParams({
+      latitude: String(latitude),
+      longitude: String(longitude),
+      radius_km: String(radius),
+    });
+
+    if (activity) {
+      params.append('activity', activity);
+    }
+    if (ageMin) {
+      params.append('age_min', String(ageMin));
+    }
+    if (ageMax) {
+      params.append('age_max', String(ageMax));
+    }
+    if (gender && gender !== 'any') {
+      params.append('gender', gender);
+    }
+    if (timeOfDay && timeOfDay !== 'any') {
+      params.append('time_of_day', timeOfDay);
+    }
+
+    key = `/plans/nearby?${params.toString()}`;
+  }
 
   const { data, error, isLoading } = useSWR<Plan[]>(key, fetcher);
-  console.log(data)
+  console.log(data);
   return {
     plans: data ?? [],
     isLoading,

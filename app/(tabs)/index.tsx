@@ -34,7 +34,6 @@ import { useAuth } from '@/contexts/auth-context';
 import { usePlans } from '@/hooks/use-plans';
 import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
 
 const BOTTOM_SHEET_TOP_OFFSET = 100;
@@ -46,11 +45,24 @@ const PLAN_ICONS: Record<string, IconSymbolName> = {
   culture: 'person.2.fill',
 };
 
+const TIME_OF_DAY_OPTIONS = [
+  { value: 'any', label: 'Cualquiera' },
+  { value: 'morning', label: 'Mañana' },
+  { value: 'afternoon', label: 'Tarde' },
+  { value: 'night', label: 'Noche' },
+] as const;
+
+const GENDER_OPTIONS = [
+  { value: 'any', label: 'Cualquiera' },
+  { value: 'male', label: 'Masculino' },
+  { value: 'female', label: 'Femenino' },
+] as const;
+
 export default function HomeScreen() {
   const router = useRouter();
   const { authenticated } = useAuth();
   const { user } = useProfile();
-  
+
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
@@ -60,16 +72,21 @@ export default function HomeScreen() {
   const primaryColor = useThemeColor({}, 'primary');
 
   const [isFiltersVisible, setFiltersVisible] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+  const [ageRange, setAgeRange] = useState({ min: '', max: '' });
+  const [gender, setGender] = useState<'any' | 'male' | 'female'>('any');
+  const [timeOfDay, setTimeOfDay] = useState<'any' | 'morning' | 'afternoon' | 'night'>('any');
 
   const { plans, isLoading: isLoadingPlans } = usePlans({
     latitude: userLocation?.coords.latitude,
     longitude: userLocation?.coords.longitude,
-    interests: activeFilters,
     activity: searchQuery,
+    ageMin: Number(ageRange.min) || undefined,
+    ageMax: Number(ageRange.max) || undefined,
+    gender,
+    timeOfDay,
   });
 
   const mapRef = useRef<MapView>(null);
@@ -130,16 +147,10 @@ export default function HomeScreen() {
   }));
 
   useEffect(() => {
-    animatedHeight.value = withTiming(isFiltersVisible ? 100 : 0, {
+    animatedHeight.value = withTiming(isFiltersVisible ? 280 : 0, {
       duration: 300,
     });
   }, [isFiltersVisible]);
-
-  const toggleFilter = (interest: string) => {
-    setActiveFilters((prev) =>
-      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]
-    );
-  };
 
   const centerOnUserLocation = () => {
     if (mapRef.current && userLocation) {
@@ -246,19 +257,75 @@ export default function HomeScreen() {
         </View>
 
         <Animated.View style={animatedStyle}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersContainer}
-          >
-            {INTERESTS.map((interest) => (
-              <FilterButton
-                key={interest}
-                label={interest}
-                isActive={activeFilters.includes(interest)}
-                onPress={() => toggleFilter(interest)}
-              />
-            ))}
+          <ScrollView contentContainerStyle={styles.filtersContentContainer}>
+            <View style={styles.filterGroup}>
+              <ThemedText style={styles.filterLabel}>Hora del día</ThemedText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filterOptions}
+              >
+                {TIME_OF_DAY_OPTIONS.map(({ value, label }) => (
+                  <FilterButton
+                    key={value}
+                    label={label}
+                    isActive={timeOfDay === value}
+                    onPress={() => setTimeOfDay(value)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.filterGroup}>
+              <ThemedText style={styles.filterLabel}>Género</ThemedText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filterOptions}
+              >
+                {GENDER_OPTIONS.map(({ value, label }) => (
+                  <FilterButton
+                    key={value}
+                    label={label}
+                    isActive={gender === value}
+                    onPress={() => setGender(value)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.filterGroup}>
+              <ThemedText style={styles.filterLabel}>Rango de Edad</ThemedText>
+              <View style={styles.ageInputContainer}>
+                <TextInput
+                  style={[
+                    styles.ageInput,
+                    { color: textColor, borderColor, backgroundColor: cardColor },
+                  ]}
+                  placeholder="Mín."
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                  value={ageRange.min}
+                  onChangeText={(text) =>
+                    setAgeRange((prev) => ({ ...prev, min: text.replace(/[^0-9]/g, '') }))
+                  }
+                />
+                <ThemedText style={{ marginHorizontal: 5 }}>-</ThemedText>
+                <TextInput
+                  style={[
+                    styles.ageInput,
+                    { color: textColor, borderColor, backgroundColor: cardColor },
+                  ]}
+                  placeholder="Máx."
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                  value={ageRange.max}
+                  onChangeText={(text) =>
+                    setAgeRange((prev) => ({ ...prev, max: text.replace(/[^0-9]/g, '') }))
+                  }
+                />
+              </View>
+            </View>
           </ScrollView>
           <Pressable
             onPress={() => {
@@ -343,8 +410,32 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
   },
-  filtersContainer: {
+  filtersContentContainer: {
     paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
+  filterGroup: {
+    marginBottom: 15,
+  },
+  filterLabel: {
+    fontWeight: '600',
+    marginBottom: 8,
+    marginLeft: 5,
+  },
+  filterOptions: {
+    flexDirection: 'row',
+  },
+  ageInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ageInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    textAlign: 'center',
+    fontSize: 16,
   },
   bottomSheetContainer: {
     height: '100%',

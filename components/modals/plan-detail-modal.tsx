@@ -10,7 +10,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuth } from '@/contexts/auth-context';
 import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { fetcherPost } from '@/lib/axios';
+import { fetcherDelete, fetcherPost } from '@/lib/axios';
 import { Plan } from '@/types/plan';
 
 interface PlanDetailModalProps {
@@ -66,6 +66,7 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
   const { authenticated } = useAuth();
   const { mutate } = useSWRConfig();
   const [isJoining, setIsJoining] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const cardColor = useThemeColor({}, 'card');
   const primaryColor = useThemeColor({}, 'primary');
@@ -73,6 +74,9 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
   const borderColor = useThemeColor({}, 'border');
   const secondaryTextColor = useThemeColor({}, 'icon');
   const flexibleTagBgColor = useThemeColor({ light: '#e9f6fc', dark: '#1c2a3a' }, 'background');
+  const errorColor = useThemeColor({}, 'error');
+
+  const isCreator = authenticated && user?.id === plan.creator.id;
 
   const handleJoinPlan = async () => {
     if (!authenticated || !user) {
@@ -112,7 +116,34 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
     }
   };
 
+  const handleDeletePlan = async () => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que querés eliminar este plan? Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              await fetcherDelete(`/plans/${plan.id}`);
+              mutate('/plans'); // Revalidate plans list
+              Alert.alert('Éxito', 'El plan ha sido eliminado.', [{ text: 'OK', onPress: onClose }]);
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'No se pudo eliminar el plan.');
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleCreatorPress = () => {
+    if (isCreator) return;
     onClose();
     router.push(`/profile/${plan.creator.id}` as any);
   };
@@ -141,9 +172,11 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
                   />
                   <View>
                     <ThemedText style={{ color: secondaryTextColor, fontSize: 14 }}>
-                      Creado por
+                      {isCreator ? 'Plan creado por' : 'Creado por'}
                     </ThemedText>
-                    <ThemedText type="defaultSemiBold">{plan.creator.name}</ThemedText>
+                    <ThemedText type="defaultSemiBold">
+                      {isCreator ? 'Vos' : plan.creator.name}
+                    </ThemedText>
                   </View>
                 </ThemedView>
               </Pressable>
@@ -191,17 +224,31 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
               </ThemedView>
             )}
 
-            <Pressable
-              style={[styles.joinButton, { backgroundColor: primaryColor }]}
-              onPress={handleJoinPlan}
-              disabled={isJoining}
-            >
-              {isJoining ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <ThemedText style={styles.joinButtonText}>Unirme al Plan</ThemedText>
-              )}
-            </Pressable>
+            {isCreator ? (
+              <Pressable
+                style={[styles.joinButton, { backgroundColor: errorColor }]}
+                onPress={handleDeletePlan}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <ThemedText style={styles.joinButtonText}>Eliminar Plan</ThemedText>
+                )}
+              </Pressable>
+            ) : (
+              <Pressable
+                style={[styles.joinButton, { backgroundColor: primaryColor }]}
+                onPress={handleJoinPlan}
+                disabled={isJoining}
+              >
+                {isJoining ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <ThemedText style={styles.joinButtonText}>Unirme al Plan</ThemedText>
+                )}
+              </Pressable>
+            )}
           </ThemedView>
         </Pressable>
       </Pressable>
