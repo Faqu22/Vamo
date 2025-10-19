@@ -1,7 +1,16 @@
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Importar useSafeAreaInsets
 import { useSWRConfig } from 'swr';
 
@@ -32,6 +41,14 @@ export default function ConversationDetailScreen() {
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets(); // Obtener los insets de área segura
   const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight : 0;
+
+  const sortedMessages = useMemo(() => {
+    if (!conversation?.messages) return [];
+    // Create a shallow copy before sorting to avoid mutating the original array from SWR cache
+    return [...conversation.messages].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+  }, [conversation?.messages]);
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() || isSending) return;
@@ -77,14 +94,19 @@ export default function ConversationDetailScreen() {
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <FlatList
-          data={conversation.messages}
+          data={sortedMessages}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <MessageItem message={item} />}
           contentContainerStyle={styles.messageList}
           inverted
         />
 
-        <View style={[styles.inputContainer, { backgroundColor: cardColor, borderColor, paddingBottom: insets.bottom }]}>
+        <View
+          style={[
+            styles.inputContainer,
+            { backgroundColor: cardColor, borderColor, paddingBottom: insets.bottom },
+          ]}
+        >
           <TextInput
             style={[styles.messageInput, { color: textColor }]}
             placeholder="Escribe un mensaje..."
