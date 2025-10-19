@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { getToken } from './auth-storage';
+import { MOCK_CONVERSATIONS } from '@/mocksdata/conversations'; // New import
 
 const API_HOST = '172.20.10.2';
 const API_PORT = 8000;
@@ -43,6 +44,14 @@ const handleError = (error: unknown) => {
 export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
   try {
     const [url, config] = Array.isArray(args) ? args : [args];
+
+    // --- MOCK DATA INTEGRATION ---
+    if (url === '/messages/conversations') {
+      console.log('Using mock data for /messages/conversations');
+      return { conversations: MOCK_CONVERSATIONS };
+    }
+    // --- END MOCK DATA INTEGRATION ---
+
     const res = await axiosServices.get(url, { ...config });
     return res.data;
   } catch (error) {
