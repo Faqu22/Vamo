@@ -31,6 +31,7 @@ export default function CreatePlanStep5Screen() {
             // Resetear el estado del formulario y cerrar el modal
             resetPlanData();
             router.dismissAll();
+            router.back()
           },
         },
       ]);

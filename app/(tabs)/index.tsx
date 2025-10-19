@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Keyboard,
   Pressable,
@@ -29,6 +30,7 @@ import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
+import { useAuth } from '@/contexts/auth-context';
 import { usePlans } from '@/hooks/use-plans';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
@@ -45,6 +47,7 @@ const PLAN_ICONS: Record<string, IconSymbolName> = {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { authenticated } = useAuth();
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
@@ -149,6 +152,31 @@ export default function HomeScreen() {
     }
   };
 
+  const handleCreatePlanPress = () => {
+    if (authenticated) {
+      router.push('/(create-plan)/step1');
+    } else {
+      Alert.alert(
+        'Registro Requerido',
+        'Para crear un plan, necesitás registrarte o iniciar sesión.',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Iniciar Sesión',
+            onPress: () => router.push('/login'),
+          },
+          {
+            text: 'Registrarse',
+            onPress: () => router.push('/register'),
+          },
+        ]
+      );
+    }
+  };
+
   const mapRegion = userLocation
     ? {
         latitude: userLocation.coords.latitude,
@@ -176,17 +204,13 @@ export default function HomeScreen() {
             key={plan.id}
             coordinate={{
               latitude: plan.location_latitude,
-              longitude: plan.location_longitude
+              longitude: plan.location_longitude,
             }}
             title={plan.activity}
             onPress={() => setSelectedPlan(plan)}
           >
             <View style={[styles.markerContainer, { backgroundColor: primaryColor }]}>
-              <IconSymbol
-                name={'person.2.fill'}
-                color="#fff"
-                size={18}
-              />
+              <IconSymbol name={'person.2.fill'} color="#fff" size={18} />
             </View>
           </Marker>
         ))}
@@ -200,7 +224,7 @@ export default function HomeScreen() {
       />
       <FloatingActionButton
         iconName="plus"
-        onPress={() => router.push('/(create-plan)/step1')}
+        onPress={handleCreatePlanPress}
         bottomPosition={TAB_BAR_HEIGHT + 20}
         side="right"
       />
