@@ -28,6 +28,7 @@ export default function EditProfileScreen() {
   const { user, isLoading, isError, mutate } = useProfile();
   const [editedUser, setEditedUser] = useState<UserProfile | null>(null);
   const [newInterest, setNewInterest] = useState('');
+  const [newAvatar, setNewAvatar] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const backgroundColor = useThemeColor({}, 'background');
@@ -58,8 +59,37 @@ export default function EditProfileScreen() {
     try {
       // Actualización optimista: actualiza la UI localmente primero
       mutate(editedUser, false);
-      await fetcherPatch('/profile/me', editedUser);
-      // Vuelve a validar los datos con el servidor
+
+      // Si hay un nuevo avatar, súbelo primero
+      if (newAvatar) {
+        const uri = newAvatar.uri;
+        const formData = new FormData();
+        const fileName = uri.split('/').pop() || 'photo.jpg';
+        const fileType = newAvatar.mimeType || `image/${fileName.split('.').pop()}`;
+
+        formData.append('avatar', {
+          uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+          name: fileName,
+          type: fileType,
+        } as any);
+
+        await fetcherPost('/profile/me/avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      // Prepara los datos del perfil para la actualización (sin la URL de la imagen)
+      const profileDataToPatch = {
+        name: editedUser.name,
+        lastName: editedUser.lastName,
+        age: editedUser.age,
+        bio: editedUser.bio,
+        interests: editedUser.interests,
+      };
+
+      await fetcherPatch('/profile/me', profileDataToPatch);
+
+      // Vuelve a validar los datos con el servidor para obtener la nueva URL del avatar
       mutate();
       router.back();
     } catch (error) {
@@ -78,49 +108,17 @@ export default function EditProfileScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
 
-    if (!result.canceled && result.assets[0].uri) {
-      const uri = result.assets[0].uri;
-
-      // Actualización optimista de la UI con la URI local
-      handleInputChange('profilePictureUrl', uri);
-
-      const formData = new FormData();
-      const fileName = uri.split('/').pop() || 'photo.jpg';
-      const fileType = `image/${fileName.split('.').pop()}`;
-
-      formData.append('avatar', {
-        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-        name: fileName,
-        type: fileType,
-      } as any);
-
-      try {
-        const response = await fetcherPost('/profile/me/avatar', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        if (response.profilePictureUrl) {
-          // Actualización final con la URL remota del servidor
-          const remoteUrl = response.profilePictureUrl;
-          handleInputChange('profilePictureUrl', remoteUrl);
-          if (user) {
-            mutate({ ...user, profilePictureUrl: remoteUrl }, false);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to upload image:', error);
-        Alert.alert('Error', 'No se pudo subir la imagen.');
-        // Revertir a la imagen original en caso de error
-        if (user) {
-          handleInputChange('profilePictureUrl', user.profilePictureUrl);
-        }
-      }
+    if (!result.canceled && result.assets[0]) {
+      const selectedAsset = result.assets[0];
+      setNewAvatar(selectedAsset);
+      // Actualiza la UI con la imagen local seleccionada
+      handleInputChange('profilePictureUrl', selectedAsset.uri);
     }
   };
 
