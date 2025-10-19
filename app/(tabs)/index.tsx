@@ -32,7 +32,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
 import { usePlans } from '@/hooks/use-plans';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useThemeColor } => '@/hooks/use-theme-color';
 import { fetcherPost } from '@/lib/axios'; // Import fetcherPost
 import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
@@ -156,9 +156,11 @@ export default function HomeScreen() {
   };
 
   const handleJoinPlan = async (planId: string) => {
+    console.log('Attempting to join plan with ID:', planId);
     setIsJoiningPlan(true);
     try {
-      await fetcherPost(`/plans/${planId}/join`);
+      const response = await fetcherPost(`/plans/${planId}/join`);
+      console.log('Successfully joined plan:', response);
       Alert.alert('¡Éxito!', 'Te has unido al plan correctamente.');
       setSelectedPlan(null); // Close the modal
       mutate('/plans'); // Revalidate plans to update participant count or remove from list if full
@@ -167,6 +169,7 @@ export default function HomeScreen() {
       Alert.alert('Error', error.message || 'No se pudo unir al plan. Inténtalo de nuevo.');
     } finally {
       setIsJoiningPlan(false);
+      console.log('Finished joining plan attempt.');
     }
   };
 
