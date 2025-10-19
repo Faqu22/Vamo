@@ -31,24 +31,36 @@ export function MessageItem({ message }: MessageItemProps) {
       {!isMyMessage && (
         <Image
           source={{ uri: message.sender.profilePictureUrl || 'https://i.pravatar.cc/100?u=default' }}
-          style={styles.avatar}
+          style={[styles.avatar, { marginLeft: 10, marginRight: 8 }]} // Avatar de otros: 10px desde el borde izquierdo, 8px de la burbuja
         />
       )}
-      <ThemedView style={[styles.bubble, { backgroundColor: isMyMessage ? primaryColor : cardColor }]}>
+      <ThemedView
+        style={[
+          styles.bubble,
+          { backgroundColor: isMyMessage ? primaryColor : cardColor },
+          isMyMessage ? { marginRight: 8, marginLeft: 'auto' } : { marginLeft: 8, marginRight: 'auto' }, // Márgenes de la burbuja
+        ]}
+      >
         {!isMyMessage && (
           <ThemedText type="defaultSemiBold" style={[styles.senderName, { color: isMyMessage ? '#fff' : primaryColor }]}>
             {message.sender.name}
           </ThemedText>
         )}
         <ThemedText style={{ color: isMyMessage ? '#fff' : undefined }}>{message.content}</ThemedText>
-        <ThemedText style={[styles.timestamp, { color: isMyMessage ? 'rgba(255,255,255,0.7)' : secondaryTextColor }]}>
+        <ThemedText
+          style={[
+            styles.timestamp,
+            { color: isMyMessage ? 'rgba(255,255,255,0.7)' : secondaryTextColor },
+            isMyMessage ? { marginRight: 5 } : { marginLeft: 5 }, // Desplaza la hora hacia adentro
+          ]}
+        >
           {formatTimestamp(message.timestamp)}
         </ThemedText>
       </ThemedView>
       {isMyMessage && (
         <Image
           source={{ uri: message.sender.profilePictureUrl || 'https://i.pravatar.cc/100?u=default' }}
-          style={styles.avatar}
+          style={[styles.avatar, { marginRight: 10, marginLeft: 8 }]} // Mi avatar: 10px desde el borde derecho, 8px de la burbuja
         />
       )}
     </View>
@@ -60,25 +72,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     marginVertical: 5,
-    paddingHorizontal: 10,
+    paddingHorizontal: 0, // Eliminado el padding del contenedor
   },
   myMessageContainer: {
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end', // Empuja la burbuja y el avatar a la derecha
   },
   otherMessageContainer: {
-    justifyContent: 'flex-start',
+    justifyContent: 'flex-start', // Empuja el avatar y la burbuja a la izquierda
   },
   avatar: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    marginHorizontal: 8,
   },
   bubble: {
-    maxWidth: '75%',
+    maxWidth: '85%', // Ancho máximo aumentado para acercarse al borde
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 0, // Establecido a 0 para un aspecto 100% rectangular
+    borderRadius: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -92,6 +103,6 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 10,
     marginTop: 5,
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-end', // Mantiene la alineación a la derecha
   },
 });
