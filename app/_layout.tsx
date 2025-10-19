@@ -30,7 +30,6 @@ export default function RootLayout() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkAppTheme : LightTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="map" options={{ presentation: 'modal' }} />
             <Stack.Screen name="edit-profile" options={{ presentation: 'modal' }} />
             <Stack.Screen
               name="(create-plan)"
