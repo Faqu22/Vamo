@@ -178,13 +178,13 @@ export default function HomeScreen() {
       <FloatingActionButton
         iconName="location.fill"
         onPress={centerOnUserLocation}
-        bottomPosition={TAB_BAR_HEIGHT + 20} {/* Ajustado para estar sobre la barra de navegación */}
+        bottomPosition={TAB_BAR_HEIGHT + 20}
         side="left"
       />
       <FloatingActionButton
         iconName="plus"
         onPress={() => router.push('/(create-plan)/step1')}
-        bottomPosition={TAB_BAR_HEIGHT + 20} {/* Ajustado para estar sobre la barra de navegación */}
+        bottomPosition={TAB_BAR_HEIGHT + 20}
         side="right"
       />
 
@@ -231,7 +231,7 @@ export default function HomeScreen() {
         <Animated.View
           style={[
             styles.bottomSheetContainer,
-            { backgroundColor: cardColor, top: SCREEN_HEIGHT },
+            { backgroundColor: cardColor, top: SCREEN_HEIGHT, zIndex: 20 },
             bottomSheetStyle,
           ]}
         >
