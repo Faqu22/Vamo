@@ -126,6 +126,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     flexGrow: 1,
     justifyContent: 'flex-end', // Align content to the bottom
+    marginBottom: 10, // Added margin bottom
   },
   inputContainer: {
     flexDirection: 'row',
