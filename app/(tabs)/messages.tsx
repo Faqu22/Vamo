@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -13,12 +13,17 @@ export default function MessagesScreen() {
   const iconColor = useThemeColor({}, 'icon');
   const secondaryTextColor = useThemeColor({}, 'icon');
   const primaryColor = useThemeColor({}, 'primary');
+  const cardColor = useThemeColor({}, 'card');
 
   const { authenticated, isLoading: isLoadingAuth } = useAuth();
-  const { conversations, isLoading: isLoadingConversations, isError: isErrorConversations } = useConversations();
+  const {
+    conversations,
+    isLoading: isLoadingConversations,
+    isError: isErrorConversations,
+  } = useConversations();
 
   const handleConversationPress = (conversationId: string) => {
-    router.push({ pathname: "/messages/[id]", params: { id: conversationId } });
+    router.push({ pathname: '/messages/[id]', params: { id: conversationId } });
   };
 
   if (isLoadingAuth || isLoadingConversations) {
@@ -38,7 +43,21 @@ export default function MessagesScreen() {
         <ThemedText style={{ textAlign: 'center', marginBottom: 30, paddingHorizontal: 20 }}>
           Necesitas iniciar sesión para acceder a tus conversaciones.
         </ThemedText>
-        {/* Optionally add a login button here */}
+        <Pressable
+          style={[styles.button, { backgroundColor: primaryColor }]}
+          onPress={() => router.push('/login')}
+        >
+          <ThemedText style={styles.buttonText}>Iniciar Sesión</ThemedText>
+        </Pressable>
+        <Pressable
+          style={[
+            styles.button,
+            { backgroundColor: cardColor, borderWidth: 1, borderColor: primaryColor },
+          ]}
+          onPress={() => router.push('/register')}
+        >
+          <ThemedText style={[styles.buttonText, { color: primaryColor }]}>Registrarse</ThemedText>
+        </Pressable>
       </ThemedView>
     );
   }
@@ -108,5 +127,17 @@ const styles = StyleSheet.create({
   },
   listContentContainer: {
     paddingVertical: 10,
+  },
+  button: {
+    width: '100%',
+    padding: 15,
+    borderRadius: 25,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
