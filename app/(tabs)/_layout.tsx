@@ -7,11 +7,13 @@ import { VamoLogo } from '@/components/ui/vamo-logo';
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useProfile } from '@/hooks/use-profile';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme() ?? 'light';
   const router = useRouter();
   const { authenticated } = useAuth();
+  const { user, isError } = useProfile();
 
   return (
     <Tabs
@@ -40,7 +42,7 @@ export default function TabLayout() {
           title: 'Perfil',
           tabBarIcon: ({ color, focused }) => <IconSymbol name="person.fill" color={color} />,
           headerRight: () =>
-            authenticated ? (
+            authenticated && !isError && user ? (
               <Pressable
                 style={{ marginRight: 15 }}
                 onPress={() => router.push('/edit-profile')}

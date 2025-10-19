@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -11,6 +11,7 @@ interface CreatePlanPageLayoutProps {
   currentStep: number;
   onNext: () => void;
   isFinalStep?: boolean;
+  isPublishing?: boolean;
 }
 
 const TOTAL_STEPS = 5;
@@ -20,6 +21,7 @@ export function CreatePlanPageLayout({
   currentStep,
   onNext,
   isFinalStep = false,
+  isPublishing = false,
 }: CreatePlanPageLayoutProps) {
   const router = useRouter();
   const cardColor = useThemeColor({}, 'card');
@@ -72,10 +74,15 @@ export function CreatePlanPageLayout({
         <Pressable
           style={[styles.nextButton, { backgroundColor: primaryColor }]}
           onPress={onNext}
+          disabled={isPublishing}
         >
-          <ThemedText style={styles.nextButtonText}>
-            {isFinalStep ? 'Publicar plan' : 'Siguiente'}
-          </ThemedText>
+          {isPublishing ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <ThemedText style={styles.nextButtonText}>
+              {isFinalStep ? 'Publicar plan' : 'Siguiente'}
+            </ThemedText>
+          )}
         </Pressable>
       </View>
     </SafeAreaView>
@@ -126,9 +133,10 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   nextButton: {
-    paddingVertical: 15,
+    height: 50,
     borderRadius: 25,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   nextButtonText: {
     color: '#fff',
