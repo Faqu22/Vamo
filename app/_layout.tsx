@@ -6,23 +6,24 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DarkAppTheme, LightTheme } from '@/constants/theme';
 import { AuthProvider } from '@/contexts/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { LogBox } from 'react-native';
 
-// LogBox.ignoreAllLogs(true);
+LogBox.ignoreAllLogs(true);
 
-// // Captura errores globales para evitar el red screen
-// if (!__DEV__) {
-//   // En producción no hace falta, pero por las dudas
-//   console.error = () => {};
-// } else {
-//   const originalHandler = ErrorUtils.getGlobalHandler && ErrorUtils.getGlobalHandler();
-//   ErrorUtils.setGlobalHandler((error, isFatal) => {
-//     console.log('Error capturado:', error);
-//     // Evita el red screen mostrando algo custom o nada
-//     // Por ejemplo:
-//     // Alert.alert('Ocurrió un error, pero seguimos funcionando.');
-//     // o simplemente no hacer nada:
-//   });
-// }
+// Captura errores globales para evitar el red screen
+if (!__DEV__) {
+  // En producción no hace falta, pero por las dudas
+  console.error = () => {};
+} else {
+  const originalHandler = ErrorUtils.getGlobalHandler && ErrorUtils.getGlobalHandler();
+  ErrorUtils.setGlobalHandler((error, isFatal) => {
+    console.log('Error capturado:', error);
+    // Evita el red screen mostrando algo custom o nada
+    // Por ejemplo:
+    // Alert.alert('Ocurrió un error, pero seguimos funcionando.');
+    // o simplemente no hacer nada:
+  });
+}
 
 // Evita que la pantalla de bienvenida se oculte automáticamente
 SplashScreen.preventAutoHideAsync();

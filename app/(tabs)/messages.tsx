@@ -6,6 +6,7 @@ import { ConversationListItem } from '@/components/ui/conversation-list-item';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuth } from '@/contexts/auth-context';
 import { useConversations } from '@/hooks/use-conversations';
+import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { router } from 'expo-router';
 
@@ -14,6 +15,7 @@ export default function MessagesScreen() {
   const secondaryTextColor = useThemeColor({}, 'icon');
   const primaryColor = useThemeColor({}, 'primary');
   const cardColor = useThemeColor({}, 'card');
+  const { user } = useProfile();
 
   const { authenticated, isLoading: isLoadingAuth } = useAuth();
   const {
@@ -34,7 +36,7 @@ export default function MessagesScreen() {
     );
   }
 
-  if (!authenticated) {
+  if (!authenticated || !user) {
     return (
       <ThemedView style={styles.centeredContainer}>
         <ThemedText type="subtitle" style={{ marginBottom: 20 }}>
@@ -62,7 +64,7 @@ export default function MessagesScreen() {
     );
   }
 
-  if (isErrorConversations) {
+  if (isErrorConversations && user && authenticated) {
     return (
       <ThemedView style={styles.centeredContainer}>
         <ThemedText>Error al cargar las conversaciones.</ThemedText>
