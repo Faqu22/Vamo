@@ -2,11 +2,12 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { ConversationListItem } from '@/components/ui/conversation-list-item';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { useConversations } from '@/hooks/use-conversations';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuth } from '@/contexts/auth-context';
+import { useConversations } from '@/hooks/use-conversations';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { router } from 'expo-router';
 
 export default function MessagesScreen() {
   const iconColor = useThemeColor({}, 'icon');
@@ -17,8 +18,7 @@ export default function MessagesScreen() {
   const { conversations, isLoading: isLoadingConversations, isError: isErrorConversations } = useConversations();
 
   const handleConversationPress = (conversationId: string) => {
-    // TODO: Navigate to chat detail screen
-    console.log('Navigate to conversation:', conversationId);
+    router.push({ pathname: "/messages/[id]", params: { id: conversationId } });
   };
 
   if (isLoadingAuth || isLoadingConversations) {

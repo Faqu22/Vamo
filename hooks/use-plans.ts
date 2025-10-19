@@ -46,9 +46,9 @@ export function usePlans({
 
     key = `/plans/nearby?${params.toString()}`;
   }
-  console.log('a', key);
-  const { data, error, isLoading } = useSWR<Plan[]>(key, fetcher);
-  console.log(data);
+  const { data, error, isLoading } = useSWR<Plan[]>(key, fetcher, {
+    refreshInterval: 5000
+  });
   return {
     plans: data ?? [],
     isLoading,
