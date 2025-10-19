@@ -1,4 +1,4 @@
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -25,7 +25,7 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
               <IconSymbol name="xmark.circle.fill" size={28} color={iconColor} />
             </Pressable>
             <ThemedText type="title" style={styles.title}>
-              {plan.title}
+              {plan.activity}
             </ThemedText>
             <ThemedText style={styles.description}>{plan.description}</ThemedText>
             <Pressable style={[styles.joinButton, { backgroundColor: primaryColor }]}>

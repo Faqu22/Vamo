@@ -170,16 +170,19 @@ export default function HomeScreen() {
             <UserLocationMarker />
           </Marker>
         )}
-        {(plans || []).map((plan) => (
+        {plans?.map((plan) => (
           <Marker
             key={plan.id}
-            coordinate={plan.coordinate}
-            title={plan.title}
+            coordinate={{
+              latitude: plan.location_latitude,
+              longitude: plan.location_longitude
+            }}
+            title={plan.activity}
             onPress={() => setSelectedPlan(plan)}
           >
             <View style={[styles.markerContainer, { backgroundColor: primaryColor }]}>
               <IconSymbol
-                name={PLAN_ICONS[plan.category] || 'person.2.fill'}
+                name={'person.2.fill'}
                 color="#fff"
                 size={18}
               />

@@ -22,21 +22,19 @@ export function usePlans({
   activity,
   radius = 20,
 }: UsePlansParams) {
-  const interestsQuery = interests?.length ? `&interests=${interests.join(',')}` : '';
-  const activityQuery = activity ? `&activity=${activity}` : '';
-  const radiusQuery = `&radius=${radius}`;
+  const radiusQuery = `&radius_km=${radius}`;
 
   // Solo obtener si tenemos una ubicación
   const shouldFetch = latitude && longitude;
 
   const key = shouldFetch
-    ? `/plans?latitude=${latitude}&longitude=${longitude}${radiusQuery}${interestsQuery}${activityQuery}`
+    ? `/plans/nearby?latitude=${latitude}&longitude=${longitude}${radiusQuery}`
     : null;
 
   const { data, error, isLoading } = useSWR<PlansResponse>(key, fetcher);
-
+  console.log(data)
   return {
-    plans: data?.plans,
+    plans: data ?? [],
     isLoading,
     isError: error,
   };
