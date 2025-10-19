@@ -58,6 +58,7 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
   const iconColor = useThemeColor({}, 'icon');
   const borderColor = useThemeColor({}, 'border');
   const secondaryTextColor = useThemeColor({}, 'icon');
+  const flexibleTagBgColor = useThemeColor({ light: '#e9f6fc', dark: '#1c2a3a' }, 'background'); // Similar to InterestPill
 
   return (
     <Modal animationType="fade" transparent={true} visible={true} onRequestClose={onClose}>
@@ -99,8 +100,8 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
 
             {/* Flexible Plan Tag */}
             {plan.is_flexible && (
-              <ThemedView style={[styles.flexibleTag, { backgroundColor: primaryColor }]}>
-                <ThemedText style={styles.flexibleText}>Plan Flexible</ThemedText>
+              <ThemedView style={[styles.flexibleTag, { backgroundColor: flexibleTagBgColor }]}>
+                <ThemedText style={[styles.flexibleText, { color: primaryColor }]}>Plan Flexible</ThemedText>
               </ThemedView>
             )}
 
@@ -179,7 +180,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   flexibleText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
   },
