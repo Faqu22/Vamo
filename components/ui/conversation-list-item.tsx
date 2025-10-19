@@ -1,9 +1,8 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Image } from 'expo-image';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { ConversationPreview } from '@/types/message';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { IconSymbol } from './icon-symbol';
 
 interface ConversationListItemProps {
@@ -19,11 +18,7 @@ export function ConversationListItem({ conversation, onPress }: ConversationList
 
   // Placeholder for conversation image (e.g., first participant's image or a default icon)
   // In a real app, you'd fetch this dynamically based on conversation.type or participants
-<<<<<<< HEAD
   const conversationImage = conversation.type === 'PLAN'
-=======
-  const conversationImage = conversation.type === 'plan'
->>>>>>> faa00f36c436d6e0d4f2865aecae423ec57b8a3d
     ? 'https://via.placeholder.com/50' // Placeholder for plan image
     : 'https://via.placeholder.com/50'; // Placeholder for direct chat image
 
@@ -45,12 +40,9 @@ export function ConversationListItem({ conversation, onPress }: ConversationList
     }
   };
 
-<<<<<<< HEAD
   const lastMessageText = conversation.last_message?.text || 'No hay mensajes aún'; // Handle null last_message
   const lastMessageTimestamp = conversation.last_message?.timestamp ? formatTimestamp(conversation.last_message.timestamp) : '';
 
-=======
->>>>>>> faa00f36c436d6e0d4f2865aecae423ec57b8a3d
   return (
     <Pressable onPress={() => onPress(conversation.id)}>
       <ThemedView style={[styles.container, { backgroundColor: cardColor }]}>
@@ -67,7 +59,6 @@ export function ConversationListItem({ conversation, onPress }: ConversationList
             <ThemedText type="defaultSemiBold" numberOfLines={1} style={styles.name}>
               {conversation.name}
             </ThemedText>
-<<<<<<< HEAD
             {lastMessageTimestamp ? (
               <ThemedText style={[styles.timestamp, { color: secondaryTextColor }]}>
                 {lastMessageTimestamp}
@@ -79,17 +70,6 @@ export function ConversationListItem({ conversation, onPress }: ConversationList
               {lastMessageText}
             </ThemedText>
             {conversation.unreadCount && conversation.unreadCount > 0 && (
-=======
-            <ThemedText style={[styles.timestamp, { color: secondaryTextColor }]}>
-              {formatTimestamp(conversation.lastMessage.timestamp)}
-            </ThemedText>
-          </View>
-          <View style={styles.footer}>
-            <ThemedText numberOfLines={1} style={[styles.lastMessage, { color: secondaryTextColor }]}>
-              {conversation.lastMessage.text}
-            </ThemedText>
-            {conversation.unreadCount > 0 && (
->>>>>>> faa00f36c436d6e0d4f2865aecae423ec57b8a3d
               <View style={[styles.unreadBubble, { backgroundColor: unreadBubbleColor }]}>
                 <ThemedText style={styles.unreadText}>{conversation.unreadCount}</ThemedText>
               </View>
