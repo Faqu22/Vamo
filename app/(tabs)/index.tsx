@@ -11,6 +11,7 @@ import {
   TextInput,
   View,
   useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import MapView, { Marker } from 'react-native-maps';
@@ -20,6 +21,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { ThemedText } from '@/components/themed-text';
@@ -30,12 +32,13 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
 import { usePlans } from '@/hooks/use-plans';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useThemeColor } => '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
 
-const BOTTOM_SHEET_TOP_OFFSET = 100;
+const BOTTOM_SHEET_TOP_OFFSET = 100; // Distancia desde la parte superior de la pantalla cuando está completamente expandido
 const TAB_BAR_HEIGHT = 80; // Altura aproximada de la barra de navegación inferior
+const MIN_SHEET_HEIGHT_PX = 250; // Altura mínima fija para el estado colapsado del menú
 
 const PLAN_ICONS: Record<string, IconSymbolName> = {
   sport: 'person.2.fill',
@@ -59,6 +62,8 @@ export default function HomeScreen() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
 
+  const insets = useSafeAreaInsets();
+
   const { plans, isLoading: isLoadingPlans } = usePlans({
     latitude: userLocation?.coords.latitude,
     longitude: userLocation?.coords.longitude,
@@ -67,7 +72,7 @@ export default function HomeScreen() {
   });
 
   const mapRef = useRef<MapView>(null);
-  const animatedHeight = useSharedValue(0);
+  const animatedFilterHeight = useSharedValue(0);
 
   useEffect(() => {
     (async () => {
@@ -83,30 +88,35 @@ export default function HomeScreen() {
   }, []);
 
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
-  const COLLAPSED_HEIGHT = SCREEN_HEIGHT / 3;
-  const EXPANDED_TRANSLATE_Y = -SCREEN_HEIGHT + BOTTOM_SHEET_TOP_OFFSET;
-  const COLLAPSED_TRANSLATE_Y = -COLLAPSED_HEIGHT;
 
-  const translateY = useSharedValue(COLLAPSED_TRANSLATE_Y);
-  const context = useSharedValue({ y: 0 });
+  // Altura total que ocupan la barra de navegación y el área segura inferior
+  const bottomOffset = TAB_BAR_HEIGHT + insets.bottom;
+
+  // Altura mínima visible del menú (colapsado)
+  const minSheetHeight = MIN_SHEET_HEIGHT_PX;
+  // Altura máxima del menú (expandido), desde su 'bottom' hasta el 'BOTTOM_SHEET_TOP_OFFSET'
+  const maxSheetHeight = SCREEN_HEIGHT - BOTTOM_SHEET_TOP_OFFSET - bottomOffset;
+
+  const sheetHeight = useSharedValue(minSheetHeight); // La altura inicial del menú es la mínima
+  const context = useSharedValue({ height: minSheetHeight });
 
   const gesture = Gesture.Pan()
     .onStart(() => {
-      context.value = { y: translateY.value };
+      context.value = { height: sheetHeight.value };
     })
     .onUpdate((event) => {
-      translateY.value = context.value.y + event.translationY;
-      translateY.value = Math.max(translateY.value, EXPANDED_TRANSLATE_Y);
-      translateY.value = Math.min(translateY.value, COLLAPSED_TRANSLATE_Y);
+      const newHeight = context.value.height - event.translationY;
+      sheetHeight.value = Math.max(minSheetHeight, Math.min(maxSheetHeight, newHeight));
     })
     .onEnd(() => {
-      if (translateY.value < -SCREEN_HEIGHT / 2) {
-        translateY.value = withTiming(EXPANDED_TRANSLATE_Y, {
+      const midpoint = (minSheetHeight + maxSheetHeight) / 2;
+      if (sheetHeight.value > midpoint) {
+        sheetHeight.value = withTiming(maxSheetHeight, {
           duration: 300,
           easing: Easing.out(Easing.quad),
         });
       } else {
-        translateY.value = withTiming(COLLAPSED_TRANSLATE_Y, {
+        sheetHeight.value = withTiming(minSheetHeight, {
           duration: 300,
           easing: Easing.out(Easing.quad),
         });
@@ -114,17 +124,17 @@ export default function HomeScreen() {
     });
 
   const bottomSheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
+    height: sheetHeight.value,
   }));
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    height: animatedHeight.value,
-    opacity: withTiming(animatedHeight.value > 0 ? 1 : 0, { duration: 150 }),
+  const animatedFilterSectionStyle = useAnimatedStyle(() => ({
+    height: animatedFilterHeight.value,
+    opacity: withTiming(animatedFilterHeight.value > 0 ? 1 : 0, { duration: 150 }),
     overflow: 'hidden',
   }));
 
   useEffect(() => {
-    animatedHeight.value = withTiming(isFiltersVisible ? 100 : 0, {
+    animatedFilterHeight.value = withTiming(isFiltersVisible ? 100 : 0, {
       duration: 300,
     });
   }, [isFiltersVisible]);
@@ -195,13 +205,13 @@ export default function HomeScreen() {
       <FloatingActionButton
         iconName="location.fill"
         onPress={centerOnUserLocation}
-        bottomPosition={TAB_BAR_HEIGHT + 20}
+        bottomPosition={bottomOffset + 20} // Ajustado para estar por encima del menú colapsado
         side="left"
       />
       <FloatingActionButton
         iconName="plus"
         onPress={() => router.push('/(create-plan)/step1')}
-        bottomPosition={TAB_BAR_HEIGHT + 20}
+        bottomPosition={bottomOffset + 20} // Ajustado para estar por encima del menú colapsado
         side="right"
       />
 
@@ -218,7 +228,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        <Animated.View style={animatedStyle}>
+        <Animated.View style={animatedFilterSectionStyle}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -250,8 +260,12 @@ export default function HomeScreen() {
         <Animated.View
           style={[
             styles.bottomSheetContainer,
-            { backgroundColor: cardColor, top: SCREEN_HEIGHT, zIndex: 20 },
-            bottomSheetStyle,
+            {
+              backgroundColor: cardColor,
+              bottom: bottomOffset, // Anclado a la parte inferior
+              zIndex: 20,
+            },
+            bottomSheetStyle, // Aplica la altura animada
           ]}
         >
           <View style={[styles.line, { backgroundColor: grabberColor }]} />
@@ -320,15 +334,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   bottomSheetContainer: {
-    height: '100%',
-    width: '100%',
     position: 'absolute',
+    left: 0,
+    right: 0,
     borderRadius: 25,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+    zIndex: 20,
   },
   line: {
     width: 75,
