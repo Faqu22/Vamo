@@ -38,7 +38,7 @@ export default function LoginScreen() {
     } catch (error: any) {
       Alert.alert(
         'Error de inicio de sesión',
-        error.response?.data?.detail || 'No se pudo iniciar sesión. Inténtalo de nuevo.'
+        error.message || 'No se pudo iniciar sesión. Inténtalo de nuevo.'
       );
     } finally {
       setIsLoading(false);

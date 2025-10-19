@@ -30,7 +30,7 @@ export default function CreatePlanStep5Screen() {
       console.error('Failed to publish plan:', error);
       Alert.alert(
         'Error al publicar',
-        error.response?.data?.detail || 'No se pudo publicar el plan. Inténtalo de nuevo.'
+        error.message || 'No se pudo publicar el plan. Inténtalo de nuevo.'
       );
     } finally {
       setIsPublishing(false);

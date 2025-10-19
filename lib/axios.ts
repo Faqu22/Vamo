@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { getToken } from './auth-storage';
 
@@ -22,19 +22,40 @@ axiosServices.interceptors.request.use(
   }
 );
 
+const handleError = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    const axiosError = error as AxiosError<any>;
+    const errorMessage =
+      axiosError.response?.data?.detail ||
+      axiosError.response?.data?.message ||
+      'Ocurrió un error inesperado. Por favor, intenta de nuevo.';
+    console.error(
+      `[Axios Error]: ${errorMessage} (Status: ${axiosError.response?.status})`,
+      axiosError.toJSON()
+    );
+    throw new Error(errorMessage);
+  } else {
+    console.error('[Unexpected Error]:', error);
+    throw new Error('Ocurrió un error inesperado.');
+  }
+};
+
 export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
-  const [url, config] = Array.isArray(args) ? args : [args];
-  return await axiosServices.get(url, { ...config }).then((response) => response.data);
+  try {
+    const [url, config] = Array.isArray(args) ? args : [args];
+    const res = await axiosServices.get(url, { ...config });
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
 };
 
 export const fetcherPost = async (url: string, data: any = {}, config: AxiosRequestConfig = {}) => {
   try {
-    console.log("aaa", url, data, config)
     const res = await axiosServices.post(url, data, config);
     return res.data;
   } catch (error) {
-    console.error('Error en fetcherPost:', error);
-    throw error;
+    handleError(error);
   }
 };
 
@@ -43,8 +64,7 @@ export const fetcherPut = async (url: string, data: any = {}, config: AxiosReque
     const res = await axiosServices.put(url, data, config);
     return res.data;
   } catch (error) {
-    console.error('Error en fetcherPut:', error);
-    throw error;
+    handleError(error);
   }
 };
 
@@ -57,8 +77,7 @@ export const fetcherPatch = async (
     const res = await axiosServices.patch(url, data, config);
     return res.data;
   } catch (error) {
-    console.error('Error en fetcherPatch:', error);
-    throw error;
+    handleError(error);
   }
 };
 
@@ -67,8 +86,7 @@ export const fetcherDelete = async (url: string, config: AxiosRequestConfig = {}
     const res = await axiosServices.delete(url, config);
     return res.data;
   } catch (error) {
-    console.error('Error en fetcherDelete:', error);
-    throw error;
+    handleError(error);
   }
 };
 

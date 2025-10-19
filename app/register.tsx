@@ -39,7 +39,7 @@ export default function RegisterScreen() {
     } catch (error: any) {
       Alert.alert(
         'Error de registro',
-        error.response?.data?.detail || 'No se pudo crear la cuenta. Inténtalo de nuevo.'
+        error.message || 'No se pudo crear la cuenta. Inténtalo de nuevo.'
       );
     } finally {
       setIsLoading(false);
