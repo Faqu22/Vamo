@@ -86,6 +86,10 @@ export default function EditProfileScreen() {
 
     if (!result.canceled && result.assets[0].uri) {
       const uri = result.assets[0].uri;
+
+      // Actualización optimista de la UI con la URI local
+      handleInputChange('profilePictureUrl', uri);
+
       const formData = new FormData();
       const fileName = uri.split('/').pop() || 'photo.jpg';
       const fileType = `image/${fileName.split('.').pop()}`;
@@ -102,14 +106,20 @@ export default function EditProfileScreen() {
         });
 
         if (response.profilePictureUrl) {
-          handleInputChange('profilePictureUrl', response.profilePictureUrl);
+          // Actualización final con la URL remota del servidor
+          const remoteUrl = response.profilePictureUrl;
+          handleInputChange('profilePictureUrl', remoteUrl);
           if (user) {
-            mutate({ ...user, profilePictureUrl: response.profilePictureUrl }, false);
+            mutate({ ...user, profilePictureUrl: remoteUrl }, false);
           }
         }
       } catch (error) {
         console.error('Failed to upload image:', error);
         Alert.alert('Error', 'No se pudo subir la imagen.');
+        // Revertir a la imagen original en caso de error
+        if (user) {
+          handleInputChange('profilePictureUrl', user.profilePictureUrl);
+        }
       }
     }
   };
