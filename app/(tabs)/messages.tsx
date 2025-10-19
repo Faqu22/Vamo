@@ -3,11 +3,11 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { ConversationListItem } from '@/components/ui/conversation-list-item';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { useConversations } from '@/hooks/use-conversations';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuth } from '@/contexts/auth-context';
+import { useConversations } from '@/hooks/use-conversations';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 export default function MessagesScreen() {
   const iconColor = useThemeColor({}, 'icon');
