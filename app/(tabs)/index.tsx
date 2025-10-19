@@ -106,7 +106,7 @@ export default function HomeScreen() {
   }, []);
 
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
-  const COLLAPSED_HEIGHT = SCREEN_HEIGHT / 3;
+  const COLLAPSED_HEIGHT = SCREEN_HEIGHT / 4;
   const EXPANDED_TRANSLATE_Y = -SCREEN_HEIGHT + BOTTOM_SHEET_TOP_OFFSET;
   const COLLAPSED_TRANSLATE_Y = -COLLAPSED_HEIGHT;
 
