@@ -4,8 +4,8 @@ export const MOCK_CONVERSATIONS: ConversationPreview[] = [
   {
     id: 'conv-1',
     name: 'Fútbol en Palermo',
-    type: 'plan',
-    lastMessage: {
+    type: 'PLAN',
+    last_message: {
       text: '¡Nos vemos a las 19hs!',
       timestamp: '2024-08-15T18:30:00Z',
     },
@@ -14,8 +14,8 @@ export const MOCK_CONVERSATIONS: ConversationPreview[] = [
   {
     id: 'conv-2',
     name: 'Café con Ana',
-    type: 'direct',
-    lastMessage: {
+    type: 'DIRECT',
+    last_message: {
       text: 'Perfecto, te veo ahí.',
       timestamp: '2024-08-15T17:45:00Z',
     },
@@ -24,8 +24,8 @@ export const MOCK_CONVERSATIONS: ConversationPreview[] = [
   {
     id: 'conv-3',
     name: 'Clase de Yoga',
-    type: 'plan',
-    lastMessage: {
+    type: 'PLAN',
+    last_message: {
       text: 'No olvides tu mat!',
       timestamp: '2024-08-14T10:00:00Z',
     },
@@ -34,8 +34,8 @@ export const MOCK_CONVERSATIONS: ConversationPreview[] = [
   {
     id: 'conv-4',
     name: 'Cena con amigos',
-    type: 'plan',
-    lastMessage: {
+    type: 'PLAN',
+    last_message: {
       text: '¿Alguien tiene alguna preferencia?',
       timestamp: '2024-08-13T20:10:00Z',
     },
@@ -44,8 +44,8 @@ export const MOCK_CONVERSATIONS: ConversationPreview[] = [
   {
     id: 'conv-5',
     name: 'Reunión de estudio',
-    type: 'plan',
-    lastMessage: {
+    type: 'PLAN',
+    last_message: {
       text: 'Repasemos el capítulo 3.',
       timestamp: '2024-08-12T11:00:00Z',
     },

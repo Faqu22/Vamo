@@ -5,7 +5,10 @@ import { Conversation } from '@/types/message';
 export function useConversationDetails(conversationId: string) {
   const { data, error, isLoading } = useSWR<Conversation>(
     conversationId ? `/messaging/${conversationId}` : null,
-    fetcher
+    fetcher,
+    {
+      refreshInterval: 5000,
+    }
   );
 
   return {
