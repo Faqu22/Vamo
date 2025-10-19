@@ -1,3 +1,9 @@
+export interface PlanCreator {
+  id: string;
+  name: string;
+  profilePictureUrl: string;
+}
+
 export interface Plan {
   id: string;
   activity: string;
@@ -22,4 +28,5 @@ export interface Plan {
   when: string;
   availabilityStart?: string;
   availabilityEnd?: string;
+  creator: PlanCreator;
 }

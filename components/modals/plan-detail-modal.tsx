@@ -1,9 +1,15 @@
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { useSWRConfig } from 'swr';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useAuth } from '@/contexts/auth-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { fetcherPost } from '@/lib/axios';
 import { Plan } from '@/types/plan';
 
 interface PlanDetailModalProps {
@@ -37,7 +43,8 @@ const formatParticipants = (plan: Plan) => {
   const capacity = plan.capacity !== undefined ? plan.capacity : 'ilimitado';
   let participantString = `${currentParticipants} / ${capacity} personas`;
 
-  const ageRange = plan.age_range_min && plan.age_range_max ? `${plan.age_range_min}-${plan.age_range_max} años` : '';
+  const ageRange =
+    plan.age_range_min && plan.age_range_max ? `${plan.age_range_min}-${plan.age_range_max} años` : '';
   const genderMap: Record<string, string> = {
     any: 'Sin preferencia',
     male: 'Masculino',
@@ -53,12 +60,60 @@ const formatParticipants = (plan: Plan) => {
 };
 
 export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
+  const router = useRouter();
+  const { authenticated } = useAuth();
+  const { mutate } = useSWRConfig();
+  const [isJoining, setIsJoining] = useState(false);
+
   const cardColor = useThemeColor({}, 'card');
   const primaryColor = useThemeColor({}, 'primary');
   const iconColor = useThemeColor({}, 'icon');
   const borderColor = useThemeColor({}, 'border');
   const secondaryTextColor = useThemeColor({}, 'icon');
-  const flexibleTagBgColor = useThemeColor({ light: '#e9f6fc', dark: '#1c2a3a' }, 'background'); // Similar to InterestPill
+  const flexibleTagBgColor = useThemeColor({ light: '#e9f6fc', dark: '#1c2a3a' }, 'background');
+
+  const handleJoinPlan = async () => {
+    if (!authenticated) {
+      Alert.alert(
+        'Registro Requerido',
+        'Para unirte a un plan, necesitás registrarte o iniciar sesión.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Iniciar Sesión',
+            onPress: () => {
+              onClose();
+              router.push('/login');
+            },
+          },
+          {
+            text: 'Registrarse',
+            onPress: () => {
+              onClose();
+              router.push('/register');
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    setIsJoining(true);
+    try {
+      await fetcherPost(`/plans/${plan.id}/join`);
+      mutate('/plans'); // Revalidate plans list to update participant count etc.
+      Alert.alert('¡Éxito!', 'Te has unido al plan.', [{ text: 'OK', onPress: onClose }]);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'No se pudo unir al plan.');
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const handleCreatorPress = () => {
+    onClose();
+    router.push(`/profile/${plan.creator.id}` as any);
+  };
 
   return (
     <Modal animationType="fade" transparent={true} visible={true} onRequestClose={onClose}>
@@ -74,9 +129,30 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
             </ThemedText>
             <ThemedText style={styles.description}>{plan.description}</ThemedText>
 
+            {/* Creator Section */}
+            {plan.creator && (
+              <Pressable onPress={handleCreatorPress}>
+                <ThemedView style={[styles.sectionCard, styles.creatorCard, { borderColor }]}>
+                  <Image
+                    source={{ uri: plan.creator.profilePictureUrl }}
+                    style={styles.creatorAvatar}
+                  />
+                  <View>
+                    <ThemedText style={{ color: secondaryTextColor, fontSize: 14 }}>
+                      Creado por
+                    </ThemedText>
+                    <ThemedText type="defaultSemiBold">{plan.creator.name}</ThemedText>
+                  </View>
+                </ThemedView>
+              </Pressable>
+            )}
+
             {/* Horario Section */}
             <ThemedView style={[styles.sectionCard, { borderColor }]}>
-              <ThemedText type="defaultSemiBold" style={[styles.sectionTitle, { color: secondaryTextColor }]}>
+              <ThemedText
+                type="defaultSemiBold"
+                style={[styles.sectionTitle, { color: secondaryTextColor }]}
+              >
                 Horario
               </ThemedText>
               <ThemedText style={styles.sectionValue}>{formatTime(plan)}</ThemedText>
@@ -84,7 +160,10 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
 
             {/* Lugar Section */}
             <ThemedView style={[styles.sectionCard, { borderColor }]}>
-              <ThemedText type="defaultSemiBold" style={[styles.sectionTitle, { color: secondaryTextColor }]}>
+              <ThemedText
+                type="defaultSemiBold"
+                style={[styles.sectionTitle, { color: secondaryTextColor }]}
+              >
                 Lugar
               </ThemedText>
               <ThemedText style={styles.sectionValue}>{formatLocation(plan)}</ThemedText>
@@ -92,7 +171,10 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
 
             {/* Personas Section */}
             <ThemedView style={[styles.sectionCard, { borderColor }]}>
-              <ThemedText type="defaultSemiBold" style={[styles.sectionTitle, { color: secondaryTextColor }]}>
+              <ThemedText
+                type="defaultSemiBold"
+                style={[styles.sectionTitle, { color: secondaryTextColor }]}
+              >
                 Personas
               </ThemedText>
               <ThemedText style={styles.sectionValue}>{formatParticipants(plan)}</ThemedText>
@@ -101,12 +183,22 @@ export function PlanDetailModal({ plan, onClose }: PlanDetailModalProps) {
             {/* Flexible Plan Tag */}
             {plan.is_flexible && (
               <ThemedView style={[styles.flexibleTag, { backgroundColor: flexibleTagBgColor }]}>
-                <ThemedText style={[styles.flexibleText, { color: primaryColor }]}>Plan Flexible</ThemedText>
+                <ThemedText style={[styles.flexibleText, { color: primaryColor }]}>
+                  Plan Flexible
+                </ThemedText>
               </ThemedView>
             )}
 
-            <Pressable style={[styles.joinButton, { backgroundColor: primaryColor }]}>
-              <ThemedText style={styles.joinButtonText}>Unirme al Plan</ThemedText>
+            <Pressable
+              style={[styles.joinButton, { backgroundColor: primaryColor }]}
+              onPress={handleJoinPlan}
+              disabled={isJoining}
+            >
+              {isJoining ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <ThemedText style={styles.joinButtonText}>Unirme al Plan</ThemedText>
+              )}
             </Pressable>
           </ThemedView>
         </Pressable>
@@ -163,6 +255,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
   },
+  creatorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  creatorAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
   sectionTitle: {
     fontSize: 14,
     marginBottom: 5,
@@ -189,6 +291,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     width: '100%',
+    height: 45,
+    justifyContent: 'center',
   },
   joinButtonText: {
     color: '#fff',
