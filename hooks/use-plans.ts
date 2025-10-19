@@ -10,33 +10,46 @@ interface PlansResponse {
 interface UsePlansParams {
   latitude?: number | null;
   longitude?: number | null;
-  interests?: string[];
   activity?: string;
   radius?: number;
+  ageMin?: number;
+  ageMax?: number;
 }
 
 export function usePlans({
   latitude,
   longitude,
-  interests,
   activity,
   radius = 20,
+  ageMin = 18,
+  ageMax = 99,
 }: UsePlansParams) {
-  const radiusQuery = `&radius_km=${radius}`;
-
-  // Solo obtener si tenemos una ubicación
   const shouldFetch = latitude && longitude;
 
-  const key = shouldFetch
-    ? `/plans/nearby?latitude=${latitude}&longitude=${longitude}${radiusQuery}`
-    : null;
+  let key = null;
+  if (shouldFetch) {
+    const params = new URLSearchParams({
+      latitude: String(latitude),
+      longitude: String(longitude),
+      radius_km: String(radius),
+    });
 
-  const { data, error, isLoading } = useSWR<[Plan]>(key, fetcher, {
-    refreshInterval: 60000, // Revalida cada 5 segundos
-  });
-  console.log(data)
+    if (activity) {
+      params.append('activity', activity);
+    }
+    if (ageMin) {
+      params.append('age_min', String(ageMin));
+    }
+    if (ageMax) {
+      params.append('age_max', String(ageMax));
+    }
+
+    key = `/plans/nearby?${params.toString()}`;
+  }
+  console.log('a', key);
+  const { data, error, isLoading } = useSWR<Plan[]>(key, fetcher);
+  console.log(data);
   return {
-    
     plans: data ?? [],
     isLoading,
     isError: error,

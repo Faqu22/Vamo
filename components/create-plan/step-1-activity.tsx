@@ -10,7 +10,14 @@ interface Props {
   setPlanData: React.Dispatch<React.SetStateAction<Partial<NewPlan>>>;
 }
 
-const SUGGESTIONS = ["Café 30'", "Caminar 20'", 'Fútbol 5', 'Charlar/Idiomas'];
+const SUGGESTIONS = [
+  'Tomar un café',
+  'Pasear al perro',
+  'Jugar al fútbol',
+  'Salir a correr',
+  'Ver una película',
+  'Probar un bar nuevo',
+];
 
 export function Step1Activity({ planData, setPlanData }: Props) {
   const cardColor = useThemeColor({}, 'card');
@@ -26,7 +33,7 @@ export function Step1Activity({ planData, setPlanData }: Props) {
     <ScrollView style={styles.container}>
       <ThemedText type="title">¿Qué querés hacer?</ThemedText>
       <ThemedText style={[styles.subtitle, { color: secondaryTextColor }]}>
-        Podés escribir lo que quieras o elegir un mood
+        Podés escribir lo que quieras o elegir una sugerencia
       </ThemedText>
       <TextInput
         value={planData.activity}

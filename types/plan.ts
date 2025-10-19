@@ -1,3 +1,9 @@
+export interface PlanCreator {
+  id: string;
+  name: string;
+  profilePictureUrl: string;
+}
+
 export interface Plan {
   id: string;
   activity: string;
@@ -9,15 +15,18 @@ export interface Plan {
   };
   participantCount?: number;
   capacity?: number;
-  age_range_min: number
-  age_range_max: number
-  duration: number
-  gender_preference: string
-  is_flexible: boolean
-  location_name: string
-  location_address: string
-  location_latitude: number
-  location_longitude: number
-  visibility: string
-  when: string
+  age_range_min: number;
+  age_range_max: number;
+  duration: number;
+  gender_preference: string;
+  is_flexible: boolean;
+  location_name: string;
+  location_address: string;
+  location_latitude: number;
+  location_longitude: number;
+  visibility: string;
+  when: string;
+  availabilityStart?: string;
+  availabilityEnd?: string;
+  creator: PlanCreator;
 }

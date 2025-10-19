@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert, // Import Alert for user feedback
+  Alert,
   FlatList,
   Keyboard,
   Pressable,
@@ -21,7 +21,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useSWRConfig } from 'swr'; // Import useSWRConfig for revalidation
 
 import { PlanDetailModal } from '@/components/modals/plan-detail-modal';
 import { ThemedText } from '@/components/themed-text';
@@ -31,10 +30,10 @@ import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
+import { useAuth } from '@/contexts/auth-context';
 import { usePlans } from '@/hooks/use-plans';
+import { useProfile } from '@/hooks/use-profile';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { fetcherPost } from '@/lib/axios'; // Import fetcherPost
-import { INTERESTS } from '@/mocksdata/interests';
 import { Plan } from '@/types/plan';
 
 const BOTTOM_SHEET_TOP_OFFSET = 100;
@@ -48,6 +47,9 @@ const PLAN_ICONS: Record<string, IconSymbolName> = {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { authenticated } = useAuth();
+  const { user } = useProfile();
+
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
@@ -57,19 +59,17 @@ export default function HomeScreen() {
   const primaryColor = useThemeColor({}, 'primary');
 
   const [isFiltersVisible, setFiltersVisible] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [isJoiningPlan, setIsJoiningPlan] = useState(false); // New state for join plan loading
-
-  const { mutate } = useSWRConfig(); // Initialize useSWRConfig
+  const [ageRange, setAgeRange] = useState({ min: '', max: '' });
 
   const { plans, isLoading: isLoadingPlans } = usePlans({
     latitude: userLocation?.coords.latitude,
     longitude: userLocation?.coords.longitude,
-    interests: activeFilters,
     activity: searchQuery,
+    ageMin: Number(ageRange.min) || undefined,
+    ageMax: Number(ageRange.max) || undefined,
   });
 
   const mapRef = useRef<MapView>(null);
@@ -130,16 +130,10 @@ export default function HomeScreen() {
   }));
 
   useEffect(() => {
-    animatedHeight.value = withTiming(isFiltersVisible ? 100 : 0, {
+    animatedHeight.value = withTiming(isFiltersVisible ? 120 : 0, {
       duration: 300,
     });
   }, [isFiltersVisible]);
-
-  const toggleFilter = (interest: string) => {
-    setActiveFilters((prev) =>
-      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]
-    );
-  };
 
   const centerOnUserLocation = () => {
     if (mapRef.current && userLocation) {
@@ -155,21 +149,28 @@ export default function HomeScreen() {
     }
   };
 
-  const handleJoinPlan = async (planId: string) => {
-    console.log('Attempting to join plan with ID:', planId);
-    setIsJoiningPlan(true);
-    try {
-      const response = await fetcherPost(`/plans/${planId}/join`);
-      console.log('Successfully joined plan:', response);
-      Alert.alert('¡Éxito!', 'Te has unido al plan correctamente.');
-      setSelectedPlan(null); // Close the modal
-      mutate('/plans'); // Revalidate plans to update participant count or remove from list if full
-    } catch (error: any) {
-      console.error('Failed to join plan:', error);
-      Alert.alert('Error', error.message || 'No se pudo unir al plan. Inténtalo de nuevo.');
-    } finally {
-      setIsJoiningPlan(false);
-      console.log('Finished joining plan attempt.');
+  const handleCreatePlanPress = () => {
+    if (authenticated && user) {
+      router.push('/(create-plan)/step1');
+    } else {
+      Alert.alert(
+        'Registro Requerido',
+        'Para crear un plan, necesitás registrarte o iniciar sesión.',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Iniciar Sesión',
+            onPress: () => router.push('/login'),
+          },
+          {
+            text: 'Registrarse',
+            onPress: () => router.push('/register'),
+          },
+        ]
+      );
     }
   };
 
@@ -200,17 +201,13 @@ export default function HomeScreen() {
             key={plan.id}
             coordinate={{
               latitude: plan.location_latitude,
-              longitude: plan.location_longitude
+              longitude: plan.location_longitude,
             }}
             title={plan.activity}
             onPress={() => setSelectedPlan(plan)}
           >
             <View style={[styles.markerContainer, { backgroundColor: primaryColor }]}>
-              <IconSymbol
-                name={'person.2.fill'}
-                color="#fff"
-                size={18}
-              />
+              <IconSymbol name={'person.2.fill'} color="#fff" size={18} />
             </View>
           </Marker>
         ))}
@@ -224,7 +221,7 @@ export default function HomeScreen() {
       />
       <FloatingActionButton
         iconName="plus"
-        onPress={() => router.push('/(create-plan)/step1')}
+        onPress={handleCreatePlanPress}
         bottomPosition={TAB_BAR_HEIGHT + 20}
         side="right"
       />
@@ -243,19 +240,39 @@ export default function HomeScreen() {
         </View>
 
         <Animated.View style={animatedStyle}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersContainer}
-          >
-            {INTERESTS.map((interest) => (
-              <FilterButton
-                key={interest}
-                label={interest}
-                isActive={activeFilters.includes(interest)}
-                onPress={() => toggleFilter(interest)}
-              />
-            ))}
+          <ScrollView contentContainerStyle={styles.filtersContentContainer}>
+            <View style={styles.filterGroup}>
+              <ThemedText style={styles.filterLabel}>Rango de Edad</ThemedText>
+              <View style={styles.ageInputContainer}>
+                <TextInput
+                  style={[
+                    styles.ageInput,
+                    { color: textColor, borderColor, backgroundColor: cardColor },
+                  ]}
+                  placeholder="Mín."
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                  value={ageRange.min}
+                  onChangeText={(text) =>
+                    setAgeRange((prev) => ({ ...prev, min: text.replace(/[^0-9]/g, '') }))
+                  }
+                />
+                <ThemedText style={{ marginHorizontal: 5 }}>-</ThemedText>
+                <TextInput
+                  style={[
+                    styles.ageInput,
+                    { color: textColor, borderColor, backgroundColor: cardColor },
+                  ]}
+                  placeholder="Máx."
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                  value={ageRange.max}
+                  onChangeText={(text) =>
+                    setAgeRange((prev) => ({ ...prev, max: text.replace(/[^0-9]/g, '') }))
+                  }
+                />
+              </View>
+            </View>
           </ScrollView>
           <Pressable
             onPress={() => {
@@ -301,12 +318,7 @@ export default function HomeScreen() {
       </GestureDetector>
 
       {selectedPlan && (
-        <PlanDetailModal
-          plan={selectedPlan}
-          onClose={() => setSelectedPlan(null)}
-          onJoinPlan={handleJoinPlan}
-          isJoining={isJoiningPlan}
-        />
+        <PlanDetailModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
       )}
     </ThemedView>
   );
@@ -345,8 +357,32 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
   },
-  filtersContainer: {
+  filtersContentContainer: {
     paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
+  filterGroup: {
+    marginBottom: 15,
+  },
+  filterLabel: {
+    fontWeight: '600',
+    marginBottom: 8,
+    marginLeft: 5,
+  },
+  filterOptions: {
+    flexDirection: 'row',
+  },
+  ageInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ageInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    textAlign: 'center',
+    fontSize: 16,
   },
   bottomSheetContainer: {
     height: '100%',

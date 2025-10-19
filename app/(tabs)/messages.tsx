@@ -1,26 +1,24 @@
-import { useRouter } from 'expo-router';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { ConversationListItem } from '@/components/ui/conversation-list-item';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useAuth } from '@/contexts/auth-context';
-import { useConversations } from '@/hooks/use-conversations';
+import { ConversationListItem } from '@/components/ui/conversation-list-item';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { useConversations } from '@/hooks/use-conversations';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function MessagesScreen() {
   const iconColor = useThemeColor({}, 'icon');
   const secondaryTextColor = useThemeColor({}, 'icon');
   const primaryColor = useThemeColor({}, 'primary');
-  const router = useRouter(); // Initialize useRouter
 
   const { authenticated, isLoading: isLoadingAuth } = useAuth();
   const { conversations, isLoading: isLoadingConversations, isError: isErrorConversations } = useConversations();
 
   const handleConversationPress = (conversationId: string) => {
-    // Usar el formato de objeto para rutas dinámicas con typedRoutes
-    router.push({ pathname: "/messages/[id]", params: { id: conversationId } });
+    // TODO: Navigate to chat detail screen
+    console.log('Navigate to conversation:', conversationId);
   };
 
   if (isLoadingAuth || isLoadingConversations) {

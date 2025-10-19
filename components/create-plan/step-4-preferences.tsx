@@ -17,7 +17,11 @@ const GENDER_OPTIONS: { label: string; value: NewPlan['genderPreference'] }[] = 
   { label: 'Masculino', value: 'male' },
   { label: 'Femenino', value: 'female' },
 ];
-const VISIBILITY_OPTIONS: NewPlan['visibility'][] = ['Público', 'Solo por invitación'];
+const VISIBILITY_OPTIONS: NewPlan['visibility'][] = ['Público', 'Con Aprobación'];
+const VISIBILITY_DESCRIPTIONS: Record<NewPlan['visibility'], string> = {
+  Público: 'Cualquier persona puede ver y unirse a tu plan.',
+  'Con Aprobación': 'Las personas solicitan unirse y vos aceptás o rechazás.',
+};
 
 export function Step4Preferences({ planData, setPlanData }: Props) {
   const primaryColor = useThemeColor({}, 'primary');
@@ -25,6 +29,7 @@ export function Step4Preferences({ planData, setPlanData }: Props) {
   const borderColor = useThemeColor({}, 'border');
   const textColor = useThemeColor({}, 'text');
   const iconColor = useThemeColor({}, 'icon');
+  const secondaryTextColor = useThemeColor({}, 'icon');
 
   const handleAgeChange = (field: 'min' | 'max', value: string) => {
     const numValue = Number(value);
@@ -103,15 +108,19 @@ export function Step4Preferences({ planData, setPlanData }: Props) {
       </View>
 
       <ThemedText style={styles.label}>Visibilidad</ThemedText>
-      <View style={styles.optionsContainer}>
+      <View style={styles.visibilityOptionsContainer}>
         {VISIBILITY_OPTIONS.map((item) => (
-          <OptionButton
-            key={item}
-            label={item}
-            isActive={planData.visibility === item}
-            onPress={() => setPlanData((prev) => ({ ...prev, visibility: item }))}
-            fullWidth
-          />
+          <View key={item} style={styles.visibilityOptionWrapper}>
+            <OptionButton
+              label={item}
+              isActive={planData.visibility === item}
+              onPress={() => setPlanData((prev) => ({ ...prev, visibility: item }))}
+              fullWidth
+            />
+            <ThemedText style={[styles.visibilityDescription, { color: secondaryTextColor }]}>
+              {VISIBILITY_DESCRIPTIONS[item]}
+            </ThemedText>
+          </View>
         ))}
       </View>
     </ScrollView>
@@ -138,11 +147,16 @@ const styles = StyleSheet.create({
     padding: 15,
     fontSize: 16,
   },
-  optionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    margin: -4,
-    gap: 8,
+  visibilityOptionsContainer: {
+    gap: 15,
+  },
+  visibilityOptionWrapper: {
+    flex: 1,
+  },
+  visibilityDescription: {
+    fontSize: 14,
+    marginTop: 6,
+    paddingHorizontal: 8,
   },
   row: {
     flexDirection: 'row',

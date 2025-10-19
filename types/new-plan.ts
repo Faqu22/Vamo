@@ -19,5 +19,5 @@ export interface NewPlan {
     max: number;
   };
   isFlexible: boolean;
-  visibility: 'Público' | 'Solo por invitación';
+  visibility: 'Público' | 'Con Aprobación';
 }

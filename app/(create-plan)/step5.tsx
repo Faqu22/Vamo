@@ -10,7 +10,7 @@ import { fetcherPost } from '@/lib/axios';
 
 export default function CreatePlanStep5Screen() {
   const router = useRouter();
-  const { planData } = useCreatePlan();
+  const { planData, resetPlanData } = useCreatePlan();
   const { mutate } = useSWRConfig();
   const [isPublishing, setIsPublishing] = useState(false);
 
@@ -24,8 +24,17 @@ export default function CreatePlanStep5Screen() {
       // Revalida la consulta de planes para que el nuevo plan aparezca en el mapa
       mutate('/plans');
 
-      Alert.alert('¡Éxito!', 'Tu plan ha sido publicado correctamente.');
-      router.dismissAll();
+      Alert.alert('¡Éxito!', 'Tu plan ha sido publicado correctamente.', [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Resetear el estado del formulario y cerrar el modal
+            resetPlanData();
+            router.dismissAll();
+            router.back()
+          },
+        },
+      ]);
     } catch (error: any) {
       console.error('Failed to publish plan:', error);
       Alert.alert(

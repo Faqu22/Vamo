@@ -37,6 +37,7 @@ export default function RootLayout() {
             />
             <Stack.Screen name="login" options={{ presentation: 'modal', title: 'Iniciar Sesión' }} />
             <Stack.Screen name="register" options={{ presentation: 'modal', title: 'Registrarse' }} />
+            <Stack.Screen name="profile/[id]" options={{ title: 'Perfil' }} />
             <Stack.Screen name="messages/[id]" options={{ presentation: 'card' }} />
           </Stack>
         </ThemeProvider>

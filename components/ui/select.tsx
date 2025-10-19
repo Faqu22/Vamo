@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, SafeAreaView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -30,6 +30,7 @@ export function Select<T extends string | number>({
   const borderColor = useThemeColor({}, 'border');
   const iconColor = useThemeColor({}, 'icon');
   const primaryColor = useThemeColor({}, 'primary');
+  const backgroundColor = useThemeColor({}, 'background');
 
   const selectedOption = options.find((opt) => opt.value === selectedValue);
 
@@ -51,32 +52,46 @@ export function Select<T extends string | number>({
       </Pressable>
 
       <Modal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
         <Pressable style={styles.overlay} onPress={() => setModalVisible(false)}>
-          <View onStartShouldSetResponder={() => true}>
+          <Pressable onStartShouldSetResponder={() => true}>
             <ThemedView style={[styles.modalContainer, { backgroundColor: cardColor }]}>
-              {options.map((option) => (
-                <Pressable
-                  key={option.value}
-                  style={styles.option}
-                  onPress={() => handleSelect(option.value)}
-                >
-                  <ThemedText
-                    style={{
-                      color: selectedValue === option.value ? primaryColor : textColor,
-                      fontWeight: selectedValue === option.value ? 'bold' : 'normal',
-                    }}
+              <SafeAreaView>
+                <ThemedText type="subtitle" style={styles.modalTitle}>
+                  Selecciona una opción
+                </ThemedText>
+                {options.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    style={styles.option}
+                    onPress={() => handleSelect(option.value)}
                   >
-                    {option.label}
+                    <ThemedText
+                      style={{
+                        color: selectedValue === option.value ? primaryColor : textColor,
+                        fontWeight: selectedValue === option.value ? 'bold' : 'normal',
+                        fontSize: 18,
+                      }}
+                    >
+                      {option.label}
+                    </ThemedText>
+                  </Pressable>
+                ))}
+                <Pressable
+                  style={[styles.cancelButton, { backgroundColor }]}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <ThemedText type="defaultSemiBold" style={{ color: primaryColor }}>
+                    Cancelar
                   </ThemedText>
                 </Pressable>
-              ))}
+              </SafeAreaView>
             </ThemedView>
-          </View>
+          </Pressable>
         </Pressable>
       </Modal>
     </>
@@ -95,19 +110,29 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    width: 300,
-    borderRadius: 12,
-    padding: 10,
-    maxHeight: '60%',
+    width: '100%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+  modalTitle: {
+    textAlign: 'center',
+    padding: 20,
   },
   option: {
     paddingVertical: 15,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    marginTop: 10,
+    marginHorizontal: 20,
+    padding: 15,
+    borderRadius: 12,
     alignItems: 'center',
   },
 });

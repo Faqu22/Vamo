@@ -4,6 +4,7 @@ import { NewPlan } from '@/types/new-plan';
 interface CreatePlanContextType {
   planData: Partial<NewPlan>;
   setPlanData: React.Dispatch<React.SetStateAction<Partial<NewPlan>>>;
+  resetPlanData: () => void;
 }
 
 const CreatePlanContext = createContext<CreatePlanContextType | undefined>(undefined);
@@ -22,8 +23,12 @@ const initialState: Partial<NewPlan> = {
 export function CreatePlanProvider({ children }: { children: React.ReactNode }) {
   const [planData, setPlanData] = useState<Partial<NewPlan>>(initialState);
 
+  const resetPlanData = () => {
+    setPlanData(initialState);
+  };
+
   return (
-    <CreatePlanContext.Provider value={{ planData, setPlanData }}>
+    <CreatePlanContext.Provider value={{ planData, setPlanData, resetPlanData }}>
       {children}
     </CreatePlanContext.Provider>
   );

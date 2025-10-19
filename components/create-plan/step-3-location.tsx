@@ -1,6 +1,7 @@
 import * as Location from 'expo-location';
 import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
@@ -16,7 +17,8 @@ import MapView, { MapPressEvent, Marker } from 'react-native-maps';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { MOCK_LOCATION_RESULTS, LocationSearchResult } from '@/mocksdata/locations';
+import axiosServices from '@/lib/axios';
+import { LocationSearchResult } from '@/mocksdata/locations';
 import { NewPlan } from '@/types/new-plan';
 
 interface Props {
@@ -39,6 +41,7 @@ export function Step3Location({ planData, setPlanData }: Props) {
 
   const [searchQuery, setSearchQuery] = useState(planData.location?.name || '');
   const [searchResults, setSearchResults] = useState<LocationSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const mapRef = useRef<MapView>(null);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -68,15 +71,26 @@ export function Step3Location({ planData, setPlanData }: Props) {
         1000
       );
     }
-  }, [userLocation]);
+  }, [userLocation, planData.location]);
 
-  const handleSearch = (text: string) => {
+  const handleSearch = async (text: string) => {
     setSearchQuery(text);
     if (text.length > 2) {
-      const filteredResults = MOCK_LOCATION_RESULTS.filter((item) =>
-        item.name.toLowerCase().includes(text.toLowerCase())
-      );
-      setSearchResults(filteredResults);
+      setIsSearching(true);
+      try {
+        const params: { query: string; latitude?: number; longitude?: number } = { query: text };
+        if (userLocation) {
+          params.latitude = userLocation.coords.latitude;
+          params.longitude = userLocation.coords.longitude;
+        }
+        const response = await axiosServices.get('/locations/search', { params });
+        setSearchResults(response.data.results || []);
+      } catch (error) {
+        console.error('Failed to search locations:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
     } else {
       setSearchResults([]);
     }
@@ -188,10 +202,14 @@ export function Step3Location({ planData, setPlanData }: Props) {
               value={searchQuery}
               onChangeText={handleSearch}
             />
-            {planData.location && (
-              <Pressable onPress={handleClearLocation} style={styles.clearButton}>
-                <IconSymbol name="xmark.circle.fill" color={iconColor} size={20} />
-              </Pressable>
+            {isSearching ? (
+              <ActivityIndicator style={styles.clearButton} />
+            ) : (
+              planData.location && (
+                <Pressable onPress={handleClearLocation} style={styles.clearButton}>
+                  <IconSymbol name="xmark.circle.fill" color={iconColor} size={20} />
+                </Pressable>
+              )
             )}
           </View>
           {searchResults.length > 0 && (
