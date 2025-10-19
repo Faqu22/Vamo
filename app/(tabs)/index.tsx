@@ -45,19 +45,6 @@ const PLAN_ICONS: Record<string, IconSymbolName> = {
   culture: 'person.2.fill',
 };
 
-const TIME_OF_DAY_OPTIONS = [
-  { value: 'any', label: 'Cualquiera' },
-  { value: 'morning', label: 'Mañana' },
-  { value: 'afternoon', label: 'Tarde' },
-  { value: 'night', label: 'Noche' },
-] as const;
-
-const GENDER_OPTIONS = [
-  { value: 'any', label: 'Cualquiera' },
-  { value: 'male', label: 'Masculino' },
-  { value: 'female', label: 'Femenino' },
-] as const;
-
 export default function HomeScreen() {
   const router = useRouter();
   const { authenticated } = useAuth();
@@ -76,8 +63,6 @@ export default function HomeScreen() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [ageRange, setAgeRange] = useState({ min: '', max: '' });
-  const [gender, setGender] = useState<'any' | 'male' | 'female'>('any');
-  const [timeOfDay, setTimeOfDay] = useState<'any' | 'morning' | 'afternoon' | 'night'>('any');
 
   const { plans, isLoading: isLoadingPlans } = usePlans({
     latitude: userLocation?.coords.latitude,
@@ -85,8 +70,6 @@ export default function HomeScreen() {
     activity: searchQuery,
     ageMin: Number(ageRange.min) || undefined,
     ageMax: Number(ageRange.max) || undefined,
-    gender,
-    timeOfDay,
   });
 
   const mapRef = useRef<MapView>(null);
@@ -106,7 +89,7 @@ export default function HomeScreen() {
   }, []);
 
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
-  const COLLAPSED_HEIGHT = SCREEN_HEIGHT / 4;
+  const COLLAPSED_HEIGHT = SCREEN_HEIGHT / 3;
   const EXPANDED_TRANSLATE_Y = -SCREEN_HEIGHT + BOTTOM_SHEET_TOP_OFFSET;
   const COLLAPSED_TRANSLATE_Y = -COLLAPSED_HEIGHT;
 
@@ -147,7 +130,7 @@ export default function HomeScreen() {
   }));
 
   useEffect(() => {
-    animatedHeight.value = withTiming(isFiltersVisible ? 280 : 0, {
+    animatedHeight.value = withTiming(isFiltersVisible ? 120 : 0, {
       duration: 300,
     });
   }, [isFiltersVisible]);
@@ -258,42 +241,6 @@ export default function HomeScreen() {
 
         <Animated.View style={animatedStyle}>
           <ScrollView contentContainerStyle={styles.filtersContentContainer}>
-            <View style={styles.filterGroup}>
-              <ThemedText style={styles.filterLabel}>Hora del día</ThemedText>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filterOptions}
-              >
-                {TIME_OF_DAY_OPTIONS.map(({ value, label }) => (
-                  <FilterButton
-                    key={value}
-                    label={label}
-                    isActive={timeOfDay === value}
-                    onPress={() => setTimeOfDay(value)}
-                  />
-                ))}
-              </ScrollView>
-            </View>
-
-            <View style={styles.filterGroup}>
-              <ThemedText style={styles.filterLabel}>Género</ThemedText>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filterOptions}
-              >
-                {GENDER_OPTIONS.map(({ value, label }) => (
-                  <FilterButton
-                    key={value}
-                    label={label}
-                    isActive={gender === value}
-                    onPress={() => setGender(value)}
-                  />
-                ))}
-              </ScrollView>
-            </View>
-
             <View style={styles.filterGroup}>
               <ThemedText style={styles.filterLabel}>Rango de Edad</ThemedText>
               <View style={styles.ageInputContainer}>
