@@ -38,7 +38,6 @@ export default function ConversationDetailScreen() {
     setIsSending(true);
     try {
       // El endpoint es /api/messaging/{conversation_id}/messages
-      // Cambiado 'content' a 'text' para que coincida con la API
       await fetcherPost(`/messaging/${conversationId}/messages`, { text: messageInput });
       setMessageInput('');
       // Revalidar los detalles de la conversación para mostrar el nuevo mensaje
@@ -126,7 +125,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     flexGrow: 1,
     justifyContent: 'flex-end', // Align content to the bottom
-    marginBottom: 10, // Added margin bottom
+    paddingBottom: 80, // Increased paddingBottom to ensure last message is visible above input
   },
   inputContainer: {
     flexDirection: 'row',
