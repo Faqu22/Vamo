@@ -2,8 +2,8 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { OptionButton } from '@/components/ui/option-button';
 import { ThemedText } from '@/components/themed-text';
+import { OptionButton } from '@/components/ui/option-button';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { NewPlan } from '@/types/new-plan';
 
@@ -38,7 +38,7 @@ export function Step2Time({ planData, setPlanData }: Props) {
       setPlanData((prev) => ({
         ...prev,
         when,
-        duration: undefined,
+        duration: 0,
       }));
     }
   };
