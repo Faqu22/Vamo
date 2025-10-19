@@ -6,8 +6,11 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
+  Platform, // Importar Platform
+  KeyboardAvoidingView, // Importar KeyboardAvoidingView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements'; // Importar useHeaderHeight
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -27,6 +30,9 @@ export default function RegisterScreen() {
   const cardColor = useThemeColor({}, 'card');
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({}, 'border');
+
+  const headerHeight = useHeaderHeight(); // Obtener la altura del header
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? headerHeight : 0; // Ajustar offset para iOS
 
   const handleRegister = async () => {
     if (!name || !lastName || !email || !password) {
@@ -48,60 +54,73 @@ export default function RegisterScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title" style={styles.title}>
-          Crear cuenta
-        </ThemedText>
-        <TextInput
-          style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-          placeholder="Nombre"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-          placeholder="Apellido"
-          value={lastName}
-          onChangeText={setLastName}
-        />
-        <TextInput
-          style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <Pressable
-          style={[styles.button, { backgroundColor: primaryColor }]}
-          onPress={handleRegister}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <ThemedText style={styles.buttonText}>Registrarse</ThemedText>
-          )}
-        </Pressable>
-        <Pressable onPress={() => router.push('/login')}>
-          <ThemedText style={styles.linkText}>
-            ¿Ya tenés cuenta? <ThemedText style={{ color: primaryColor }}>Iniciá Sesión</ThemedText>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={keyboardVerticalOffset}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <ThemedText type="title" style={styles.title}>
+            Crear cuenta
           </ThemedText>
-        </Pressable>
-      </SafeAreaView>
+          <TextInput
+            style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
+            placeholder="Nombre"
+            value={name}
+            onChangeText={setName}
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
+            placeholder="Apellido"
+            value={lastName}
+            onChangeText={setLastName}
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={[styles.input, { color: textColor, borderColor, backgroundColor: cardColor }]}
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholderTextColor="#999"
+          />
+          <Pressable
+            style={[styles.button, { backgroundColor: primaryColor }]}
+            onPress={handleRegister}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <ThemedText style={styles.buttonText}>Registrarse</ThemedText>
+            )}
+          </Pressable>
+          <Pressable onPress={() => router.push('/login')}>
+            <ThemedText style={styles.linkText}>
+              ¿Ya tenés cuenta? <ThemedText style={{ color: primaryColor }}>Iniciá Sesión</ThemedText>
+            </ThemedText>
+          </Pressable>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  keyboardAvoidingView: {
     flex: 1,
   },
   safeArea: {
