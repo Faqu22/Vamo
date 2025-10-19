@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     maxWidth: '75%',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 4, // Ajustado a un valor más pequeño para un aspecto más 'chato'
+    borderRadius: 0, // Establecido a 0 para un aspecto 100% rectangular
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
