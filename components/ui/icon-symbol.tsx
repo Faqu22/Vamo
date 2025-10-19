@@ -24,6 +24,7 @@ const MAPPING = {
   'location.fill': 'my-location',
   'square.and.pencil': 'edit',
   plus: 'add',
+  'arrow.up.circle.fill': 'send', // Añadido el icono para el botón de enviar
   // Add more mappings as needed
 };
 

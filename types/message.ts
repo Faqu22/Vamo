@@ -6,9 +6,9 @@ export interface LastMessagePreview {
 export interface ConversationPreview {
   id: string;
   name: string;
-  type: 'plan' | 'direct';
-  lastMessage: LastMessagePreview;
-  unreadCount: number;
+  type: 'PLAN' | 'DIRECT'; // Updated to match API output (e.g., 'PLAN')
+  last_message: LastMessagePreview | null; // Updated to match API output and allow null
+  unreadCount?: number; // Made optional as it's not in the provided API log
 }
 
 export interface Sender {
@@ -19,7 +19,7 @@ export interface Sender {
 
 export interface Message {
   id: string;
-  text: string;
+  content: string;
   timestamp: string; // ISO string
   sender: Sender;
 }

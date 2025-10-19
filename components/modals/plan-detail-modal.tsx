@@ -16,6 +16,8 @@ import { Plan } from '@/types/plan';
 interface PlanDetailModalProps {
   plan: Plan;
   onClose: () => void;
+  onJoinPlan: (planId: string) => void; // New prop for joining a plan
+  isJoining?: boolean; // New prop for loading state
 }
 
 // Helper function to format time details
