@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 2,
   },
   otherMessageBubble: {
-    maxWidth: '85%', // Ancho máximo consistente
+    maxWidth: '30%', // Ancho máximo consistente
     marginLeft: 8,
     marginRight: 'auto',
     borderTopLeftRadius: 10,
