@@ -25,6 +25,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: 'Inicio',
           headerTitle: () => <VamoLogo />,
           tabBarIcon: ({ color, focused }) => <IconSymbol name="house.fill" color={color} />,
           headerTitleAlign: 'center', // Añadido para centrar el título en Android
