@@ -24,11 +24,16 @@ export default function CreatePlanStep5Screen() {
       // Revalida la consulta de planes para que el nuevo plan aparezca en el mapa
       mutate('/plans');
 
-      Alert.alert('¡Éxito!', 'Tu plan ha sido publicado correctamente.');
-
-      // Resetear el estado del formulario y cerrar el modal
-      resetPlanData();
-      router.dismissAll();
+      Alert.alert('¡Éxito!', 'Tu plan ha sido publicado correctamente.', [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Resetear el estado del formulario y cerrar el modal
+            resetPlanData();
+            router.dismissAll();
+          },
+        },
+      ]);
     } catch (error: any) {
       console.error('Failed to publish plan:', error);
       Alert.alert(
