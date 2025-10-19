@@ -92,9 +92,9 @@ export default function EditProfileScreen() {
       // Vuelve a validar los datos con el servidor para obtener la nueva URL del avatar
       mutate();
       router.back();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update profile:', error);
-      Alert.alert('Error', 'No se pudo actualizar el perfil.');
+      Alert.alert('Error', error.message || 'No se pudo actualizar el perfil.');
       // Revierte la actualización optimista en caso de error
       mutate(user, false);
     }

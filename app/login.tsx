@@ -1,17 +1,16 @@
+import { useHeaderHeight } from '@react-navigation/elements'; // Importar useHeaderHeight
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  Alert, // Importar Platform
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   StyleSheet,
-  TextInput,
-  View,
-  Platform, // Importar Platform
-  KeyboardAvoidingView, // Importar KeyboardAvoidingView
+  TextInput
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useHeaderHeight } from '@react-navigation/elements'; // Importar useHeaderHeight
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -44,7 +43,7 @@ export default function LoginScreen() {
     } catch (error: any) {
       Alert.alert(
         'Error de inicio de sesión',
-        error.response?.data?.detail || 'No se pudo iniciar sesión. Inténtalo de nuevo.'
+        error.message || 'No se pudo iniciar sesión. Inténtalo de nuevo.'
       );
     } finally {
       setIsLoading(false);

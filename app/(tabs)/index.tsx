@@ -2,6 +2,7 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Keyboard,
   Pressable,
@@ -28,14 +29,15 @@ import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { PlanItem } from '@/components/ui/plan-item';
 import { UserLocationMarker } from '@/components/ui/user-location-marker';
+import { usePlans } from '@/hooks/use-plans';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { INTERESTS } from '@/mocksdata/interests';
-import { MOCK_PLANS, Plan } from '@/mocksdata/plans';
+import { Plan } from '@/types/plan';
 
 const BOTTOM_SHEET_TOP_OFFSET = 100;
 const TAB_BAR_HEIGHT = 80; // Altura aproximada de la barra de navegación inferior
 
-const PLAN_ICONS: Record<Plan['category'], IconSymbolName> = {
+const PLAN_ICONS: Record<string, IconSymbolName> = {
   sport: 'person.2.fill',
   social: 'person.2.fill',
   culture: 'person.2.fill',
@@ -53,8 +55,16 @@ export default function HomeScreen() {
 
   const [isFiltersVisible, setFiltersVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+
+  const { plans, isLoading: isLoadingPlans } = usePlans({
+    latitude: userLocation?.coords.latitude,
+    longitude: userLocation?.coords.longitude,
+    interests: activeFilters,
+    activity: searchQuery,
+  });
 
   const mapRef = useRef<MapView>(null);
   const animatedHeight = useSharedValue(0);
@@ -161,15 +171,22 @@ export default function HomeScreen() {
             <UserLocationMarker />
           </Marker>
         )}
-        {MOCK_PLANS.map((plan) => (
+        {plans?.map((plan) => (
           <Marker
             key={plan.id}
-            coordinate={plan.coordinate}
-            title={plan.title}
+            coordinate={{
+              latitude: plan.location_latitude,
+              longitude: plan.location_longitude
+            }}
+            title={plan.activity}
             onPress={() => setSelectedPlan(plan)}
           >
             <View style={[styles.markerContainer, { backgroundColor: primaryColor }]}>
-              <IconSymbol name={PLAN_ICONS[plan.category]} color="#fff" size={18} />
+              <IconSymbol
+                name={'person.2.fill'}
+                color="#fff"
+                size={18}
+              />
             </View>
           </Marker>
         ))}
@@ -196,6 +213,8 @@ export default function HomeScreen() {
             placeholderTextColor="#999"
             style={[styles.input, { color: textColor }]}
             onFocus={() => setFiltersVisible(true)}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
         </View>
 
@@ -239,17 +258,21 @@ export default function HomeScreen() {
           <ThemedText type="subtitle" style={styles.plansTitle}>
             Planes Cercanos
           </ThemedText>
-          <FlatList
-            data={MOCK_PLANS}
-            renderItem={({ item }) => (
-              <View style={styles.planItemWrapper}>
-                <PlanItem item={item} onPress={() => setSelectedPlan(item)} />
-              </View>
-            )}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 50 }}
-          />
+          {isLoadingPlans ? (
+            <ActivityIndicator style={{ marginTop: 20 }} color={primaryColor} />
+          ) : (
+            <FlatList
+              data={plans || []}
+              renderItem={({ item }) => (
+                <View style={styles.planItemWrapper}>
+                  <PlanItem item={item} onPress={() => setSelectedPlan(item)} />
+                </View>
+              )}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 50 }}
+            />
+          )}
         </Animated.View>
       </GestureDetector>
 

@@ -1,16 +1,16 @@
+import { useHeaderHeight } from '@react-navigation/elements'; // Importar useHeaderHeight
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  Alert, // Importar Platform
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   StyleSheet,
   TextInput,
-  Platform, // Importar Platform
-  KeyboardAvoidingView, // Importar KeyboardAvoidingView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useHeaderHeight } from '@react-navigation/elements'; // Importar useHeaderHeight
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
