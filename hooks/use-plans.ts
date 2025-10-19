@@ -23,9 +23,9 @@ export function usePlans({
   longitude,
   activity,
   radius = 20,
-  ageMin,
-  ageMax,
-  gender,
+  ageMin = 18,
+  ageMax = 99,
+  gender ,
   timeOfDay,
 }: UsePlansParams) {
   const shouldFetch = latitude && longitude;
@@ -56,7 +56,7 @@ export function usePlans({
 
     key = `/plans/nearby?${params.toString()}`;
   }
-
+  console.log('a', key)
   const { data, error, isLoading } = useSWR<Plan[]>(key, fetcher);
   console.log(data);
   return {
