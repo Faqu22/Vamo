@@ -85,42 +85,43 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   bubble: {
-    maxWidth: '80%', // Ajustado para dejar un poco más de espacio en los bordes
     paddingHorizontal: 12,
     paddingVertical: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, // Sombra más sutil
+    shadowOpacity: 0.05,
     shadowRadius: 1,
     elevation: 1,
-    flexDirection: 'row', // Para alinear el texto y la hora
-    flexWrap: 'wrap', // Permitir que el texto se envuelva
-    alignItems: 'flex-end', // Alinear la hora en la parte inferior
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-end',
   },
   myMessageBubble: {
+    maxWidth: '85%', // Ancho máximo consistente
     marginRight: 8,
     marginLeft: 'auto',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 2, // Esquina inferior derecha menos redondeada
+    borderBottomRightRadius: 2,
   },
   otherMessageBubble: {
+    maxWidth: '85%', // Ancho máximo consistente
     marginLeft: 8,
     marginRight: 'auto',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-    borderBottomLeftRadius: 2, // Esquina inferior izquierda menos redondeada
+    borderBottomLeftRadius: 2,
     borderBottomRightRadius: 10,
   },
   senderName: {
     fontSize: 12,
     marginBottom: 2,
-    width: '100%', // Asegura que el nombre ocupe su propia línea
+    width: '100%',
   },
   timestamp: {
     fontSize: 10,
-    marginLeft: 8, // Espacio entre el texto del mensaje y la hora
-    marginTop: 2, // Pequeño margen superior para separar del texto
+    marginLeft: 8,
+    marginTop: 2,
   },
 });
