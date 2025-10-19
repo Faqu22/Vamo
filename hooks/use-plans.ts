@@ -31,10 +31,12 @@ export function usePlans({
     ? `/plans/nearby?latitude=${latitude}&longitude=${longitude}${radiusQuery}`
     : null;
 
-  const { data, error, isLoading } = useSWR<Plan[]>(key, fetcher);
-  console.log(data)
+  const { data, error, isLoading } = useSWR<PlansResponse>(key, fetcher, {
+    refreshInterval: 5000, // Revalida cada 5 segundos
+  });
+  
   return {
-    plans: data ?? [],
+    plans: data?.plans ?? [],
     isLoading,
     isError: error,
   };
