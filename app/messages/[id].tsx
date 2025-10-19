@@ -38,7 +38,8 @@ export default function ConversationDetailScreen() {
     setIsSending(true);
     try {
       // El endpoint es /api/messaging/{conversation_id}/messages
-      await fetcherPost(`/messaging/${conversationId}/messages`, { content: messageInput });
+      // Cambiado 'content' a 'text' para que coincida con la API
+      await fetcherPost(`/messaging/${conversationId}/messages`, { text: messageInput });
       setMessageInput('');
       // Revalidar los detalles de la conversación para mostrar el nuevo mensaje
       mutate(`/messaging/${conversationId}`);

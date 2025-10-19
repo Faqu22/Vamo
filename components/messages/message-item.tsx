@@ -18,6 +18,9 @@ export function MessageItem({ message }: MessageItemProps) {
   const secondaryTextColor = useThemeColor({}, 'icon');
   const { user: currentUser } = useProfile(); // Get current user profile
 
+  // Añadimos un console log para depurar el contenido del mensaje
+  console.log('MessageItem received:', message);
+
   const isMyMessage = currentUser?.name === message.sender.name; // Simple check for now
 
   // Format timestamp
