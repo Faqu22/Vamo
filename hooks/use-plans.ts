@@ -32,11 +32,12 @@ export function usePlans({
     : null;
 
   const { data, error, isLoading } = useSWR<PlansResponse>(key, fetcher, {
-    refreshInterval: 5000, // Revalida cada 5 segundos
+    refreshInterval: 60000, // Revalida cada 5 segundos
   });
-  
+  console.log(data)
   return {
-    plans: data?.plans ?? [],
+    
+    plans: data ?? [],
     isLoading,
     isError: error,
   };
