@@ -5,6 +5,7 @@ import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, View } 
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { EmptyState } from '@/components/ui/empty-state';
 import { FriendItem } from '@/components/ui/friend-item';
 import { FrequentPlaceItem } from '@/components/ui/frequent-place-item';
 import { InterestPill } from '@/components/ui/interest-pill';
@@ -29,8 +30,18 @@ export default function ProfileScreen() {
 
   const renderContent = () => {
     if (activeTab === 'places') {
-      if (isLoadingPlaces)
+      if (isLoadingPlaces) {
         return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
+      }
+      if (!places || places.length === 0) {
+        return (
+          <EmptyState
+            icon="map.fill"
+            title="Sin lugares frecuentes"
+            description="Tus lugares visitados con frecuencia aparecerán aquí."
+          />
+        );
+      }
       return (
         <FlatList
           key="places"
@@ -42,19 +53,32 @@ export default function ProfileScreen() {
         />
       );
     }
-    if (isLoadingFriends)
-      return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
-    return (
-      <FlatList
-        key="friends"
-        data={friends}
-        renderItem={({ item }) => <FriendItem item={item} />}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-        numColumns={3}
-        contentContainerStyle={styles.listContainer}
-      />
-    );
+
+    if (activeTab === 'friends') {
+      if (isLoadingFriends) {
+        return <ActivityIndicator color={primaryColor} style={styles.listLoader} />;
+      }
+      if (!friends || friends.length === 0) {
+        return (
+          <EmptyState
+            icon="person.2.fill"
+            title="Sin amigos"
+            description="Cuando agregues amigos, los verás aquí."
+          />
+        );
+      }
+      return (
+        <FlatList
+          key="friends"
+          data={friends}
+          renderItem={({ item }) => <FriendItem item={item} />}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false}
+          numColumns={3}
+          contentContainerStyle={styles.listContainer}
+        />
+      );
+    }
   };
 
   if (isLoading) {
@@ -214,6 +238,9 @@ const styles = StyleSheet.create({
   },
   listLoader: {
     marginTop: 20,
+    minHeight: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
     width: '80%',

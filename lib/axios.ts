@@ -1,12 +1,10 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
-import { getToken } from './auth-storage';
 import { MOCK_CONVERSATIONS } from '@/mocksdata/conversations'; // New import
+import { getToken } from './auth-storage';
 
-const API_HOST = '172.20.10.2';
-const API_PORT = 8000;
-
-const API_BASE_URL = `http://${API_HOST}:${API_PORT}/api`;
+const API_HOST = '35.238.192.247';
+const API_BASE_URL = `http://${API_HOST}/api`;
 
 const axiosServices = axios.create({ baseURL: API_BASE_URL });
 
