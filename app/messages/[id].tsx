@@ -71,7 +71,7 @@ export default function ConversationDetailScreen() {
       <Stack.Screen
         options={{
           title: conversation.name,
-          headerBackTitleVisible: false,
+          // headerBackTitleVisible: false, // Eliminado: esta propiedad ya no es válida
         }}
       />
       <KeyboardAvoidingView
