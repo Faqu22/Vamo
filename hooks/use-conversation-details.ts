@@ -4,7 +4,7 @@ import { Conversation } from '@/types/message';
 
 export function useConversationDetails(conversationId: string) {
   const { data, error, isLoading } = useSWR<Conversation>(
-    conversationId ? `/messages/conversations/${conversationId}` : null,
+    conversationId ? `/messaging/${conversationId}` : null,
     fetcher
   );
 

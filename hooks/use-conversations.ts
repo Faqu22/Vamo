@@ -7,7 +7,7 @@ interface ConversationsResponse {
 }
 
 export function useConversations() {
-  const { data, error, isLoading } = useSWR<ConversationsResponse>('/messages/conversations', fetcher);
+  const { data, error, isLoading } = useSWR<ConversationsResponse>('/messaging', fetcher);
 
   return {
     conversations: data?.conversations,
