@@ -1,7 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { getToken } from './auth-storage';
-import { MOCK_CONVERSATIONS } from '@/mocksdata/conversations'; // New import
+import { MOCK_CONVERSATIONS } from '@/mocksdata/conversations';
+import { MOCK_CONVERSATION_DETAILS } from '@/mocksdata/conversation-details'; // New import
 
 const API_HOST = '172.20.10.2';
 const API_PORT = 8000;
@@ -49,6 +50,13 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
     if (url === '/messages/conversations') {
       console.log('Using mock data for /messages/conversations');
       return { conversations: MOCK_CONVERSATIONS };
+    }
+    if (url.startsWith('/messages/conversations/')) {
+      const conversationId = url.split('/').pop();
+      if (conversationId && MOCK_CONVERSATION_DETAILS[conversationId]) {
+        console.log(`Using mock data for /messages/conversations/${conversationId}`);
+        return MOCK_CONVERSATION_DETAILS[conversationId];
+      }
     }
     // --- END MOCK DATA INTEGRATION ---
 

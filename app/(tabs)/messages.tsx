@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -12,13 +13,14 @@ export default function MessagesScreen() {
   const iconColor = useThemeColor({}, 'icon');
   const secondaryTextColor = useThemeColor({}, 'icon');
   const primaryColor = useThemeColor({}, 'primary');
+  const router = useRouter(); // Initialize useRouter
 
   const { authenticated, isLoading: isLoadingAuth } = useAuth();
   const { conversations, isLoading: isLoadingConversations, isError: isErrorConversations } = useConversations();
 
   const handleConversationPress = (conversationId: string) => {
-    // TODO: Navigate to chat detail screen
-    console.log('Navigate to conversation:', conversationId);
+    // Usar el formato de objeto para rutas dinámicas con typedRoutes
+    router.push({ pathname: "/messages/[id]", params: { id: conversationId } });
   };
 
   if (isLoadingAuth || isLoadingConversations) {
