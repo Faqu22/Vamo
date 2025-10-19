@@ -17,7 +17,7 @@ export function PlanItem({ item, onPress }: PlanItemProps) {
   return (
     <Pressable onPress={onPress}>
       <ThemedView style={[styles.planItem, { backgroundColor: cardColor, borderColor }]}>
-        <ThemedText type="defaultSemiBold">{item.title}</ThemedText>
+        <ThemedText type="defaultSemiBold">{item.activity}</ThemedText>
         <ThemedText>{item.description}</ThemedText>
       </ThemedView>
     </Pressable>

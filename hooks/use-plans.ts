@@ -31,7 +31,7 @@ export function usePlans({
     ? `/plans/nearby?latitude=${latitude}&longitude=${longitude}${radiusQuery}`
     : null;
 
-  const { data, error, isLoading } = useSWR<PlansResponse>(key, fetcher);
+  const { data, error, isLoading } = useSWR<Plan[]>(key, fetcher);
   console.log(data)
   return {
     plans: data ?? [],
